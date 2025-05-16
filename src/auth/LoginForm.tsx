@@ -2,8 +2,6 @@ import { TextInput, PasswordInput, Button, Group, Title, Text, Anchor, Paper, Co
 import { useForm } from '@mantine/form';
 import { IconAt, IconLock, IconAlertCircle } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
-import { useAuth } from './AuthContext';
 
 interface LoginFormValues {
   email: string;
@@ -13,11 +11,10 @@ interface LoginFormValues {
 interface LoginFormProps {
   onLogin: (values: LoginFormValues) => void;
   isLoading?: boolean;
+  error?: string | null;
 }
 
-export function LoginForm({ onLogin, isLoading: externalLoading = false }: LoginFormProps) {
-  const { error: authError } = useAuth();
-  const [error, setError] = useState<string | null>(null);
+export function LoginForm({ onLogin, isLoading: externalLoading = false , error }: LoginFormProps) {
   
   const form = useForm<LoginFormValues>({
     initialValues: {
@@ -31,12 +28,11 @@ export function LoginForm({ onLogin, isLoading: externalLoading = false }: Login
   });
 
   const handleSubmit = (values: LoginFormValues) => {
-    setError(null);
     onLogin(values);
   };
 
   // Format the error message to be more user-friendly
-  let displayError = error || authError;
+  let displayError = error;
   
   // If the error contains "Field required" messages, make them more specific
   if (displayError && displayError.includes('Field required')) {
@@ -49,10 +45,6 @@ export function LoginForm({ onLogin, isLoading: externalLoading = false }: Login
     }
   }
   
-  // Handle specific error messages from backend
-  if (displayError === 'Incorrect email or password') {
-    displayError = 'Incorrect email or password. Please try again.';
-  }
 
   return (
     <Container size="xs" mt={40}>

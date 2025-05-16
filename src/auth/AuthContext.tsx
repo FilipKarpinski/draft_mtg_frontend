@@ -1,172 +1,111 @@
-import React, { createContext, useState, useContext, useEffect, type ReactNode } from 'react';
-import api, { setAccessToken } from '../api/axiosInstance';
+import { createContext, useState, useEffect, type ReactNode } from "react";
+import { authApi } from "./api";
+import { AxiosError } from "axios";
 
+// Define interface for the context value
 interface AuthContextType {
+  accessToken: string | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => Promise<void>;
   isLoading: boolean;
   error: string | null;
+  refreshAccessToken: () => Promise<string>;
+  login: (credentials: LoginCredentials) => Promise<boolean>;
+  logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Define interface for login credentials
+interface LoginCredentials {
+  email: string;
+  password: string;
+  // Add any other fields that might be in your credentials
+}
 
+// Create context with initial value
+export const AuthContext = createContext<AuthContextType>({
+  accessToken: null,
+  isAuthenticated: false,
+  isLoading: false,
+  error: null,
+  refreshAccessToken: async () => "",
+  login: async () => false,
+  logout: () => {},
+});
+
+// Define props interface for AuthProvider
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Helper function to format error messages
-const formatErrorMessage = (error: any): string => {
-  // If it's already a string, return it
-  if (typeof error === 'string') return error;
-  
-  try {
-    // If it's a JSON string, parse it
-    if (typeof error === 'string' && (error.startsWith('[') || error.startsWith('{'))) {
-      const parsedError = JSON.parse(error);
-      
-      // Handle array of validation errors
-      if (Array.isArray(parsedError)) {
-        // Check if these are field validation errors
-        const fieldErrors = parsedError.filter(err => err.type === 'missing' || err.type === 'value_error');
-        
-        if (fieldErrors.length > 0) {
-          // Create a more descriptive message about which fields have errors
-          return fieldErrors.map(err => {
-            const fieldName = err.loc[err.loc.length - 1];
-            return `${err.msg} for ${fieldName}`;
-          }).join(', ');
-        }
-        
-        return parsedError.map(err => err.msg || 'Unknown error').join(', ');
-      }
-      
-      // Handle object errors
-      if (parsedError.detail) return parsedError.detail;
-      if (parsedError.message) return parsedError.message;
-      
-      return JSON.stringify(parsedError);
-    }
-    
-    // Handle direct object errors
-    if (error && typeof error === 'object') {
-      if (Array.isArray(error)) {
-        // Check if these are field validation errors
-        const fieldErrors = error.filter(err => err.type === 'missing' || err.type === 'value_error');
-        
-        if (fieldErrors.length > 0) {
-          // Create a more descriptive message about which fields have errors
-          return fieldErrors.map(err => {
-            const fieldName = err.loc[err.loc.length - 1];
-            return `${err.msg} for ${fieldName}`;
-          }).join(', ');
-        }
-        
-        return error.map(err => err.msg || 'Unknown error').join(', ');
-      }
-      if (error.detail) return error.detail;
-      if (error.message) return error.message;
-      
-      return JSON.stringify(error);
-    }
-  } catch (e) {
-    // If JSON parsing fails, return a default message
-    console.error('Error parsing error message:', e);
-  }
-  
-  return 'An unknown error occurred';
-};
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Check if user is already authenticated on mount
+  
+  // Use useEffect to update isAuthenticated when accessToken changes
   useEffect(() => {
-    const checkAuthStatus = async () => {
-      try {
-        // Try to get user info with existing cookie
-        const response = await api.get('/me');
-        if (response.status === 200) {
-          setIsAuthenticated(true);
-        }
-      } catch (err) {
-        // If error, user is not authenticated
-        setIsAuthenticated(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    setIsAuthenticated(accessToken !== null);
+  }, [accessToken]);
 
-    checkAuthStatus();
-  }, []);
-
-  const login = async (email: string, password: string) => {
+  const login = async (credentials: LoginCredentials) => {
     setIsLoading(true);
-    setError(null);
-    
     try {
-      // Create URLSearchParams instead of FormData for proper OAuth2 format
-      const formData = new URLSearchParams();
-      formData.append('username', email);
-      formData.append('password', password);
+      // Use URLSearchParams instead of FormData for proper encoding
+      const params = new URLSearchParams();
+      params.append('username', credentials.email);
+      params.append('password', credentials.password);
       
-      const response = await api.post('/login', formData, {
+      const response = await authApi.post("/login", params, {
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
       });
       
-      // Store access token in memory (not localStorage)
-      if (response.data.access_token) {
-        setAccessToken(response.data.access_token);
-        setIsAuthenticated(true);
-        return true; // Indicate success
+      setAccessToken(response.data.access_token);
+      setError(null);
+      return true;
+    } catch (error) {
+      console.error("Login failed:", error);
+      if (error instanceof AxiosError) {
+        setError(error.response?.data.detail || 'Authentication failed');
       } else {
-        throw new Error('No access token received');
+        setError('Authentication failed');
       }
-    } catch (err: any) {
-      // Format the error message properly
-      const errorDetail = err.response?.data?.detail || err.message || 'Login failed';
-      setError(formatErrorMessage(errorDetail));
-      return false; // Indicate failure
+      throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const logout = async () => {
+  const logout = () => {
+    setAccessToken(null);
+  };
+
+  const refreshAccessToken = async () => {
     setIsLoading(true);
-    
     try {
-      // Call logout endpoint to clear the HTTP-only cookie
-      await api.post('/logout');
-      
-      // Clear access token from memory
-      setAccessToken(null);
-      setIsAuthenticated(false);
-    } catch (err: any) {
-      // Format the error message properly
-      const errorDetail = err.response?.data?.detail || err.message || 'Logout failed';
-      setError(formatErrorMessage(errorDetail));
+      const response = await authApi.post("/refresh", {});
+      setAccessToken(response.data.accessToken);
+      return response.data.accessToken;
+    } catch (error) {
+      logout();
+      throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, isLoading, error }}>
+    <AuthContext.Provider value={{ 
+      accessToken, 
+      isAuthenticated,
+      isLoading,
+      error,
+      refreshAccessToken, 
+      login, 
+      logout 
+    }}>
       {children}
     </AuthContext.Provider>
   );
 };
-
-// Custom hook to use the auth context
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}; 

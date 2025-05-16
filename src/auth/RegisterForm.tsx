@@ -1,9 +1,9 @@
 import { TextInput, PasswordInput, Button, Title, Text, Anchor, Paper, Container, Alert } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconAt, IconLock, IconAlertCircle } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import api from '../api/axiosInstance';
+import { api } from './api';
 
 interface RegisterFormValues {
   email: string;
@@ -17,6 +17,7 @@ interface RegisterFormProps {
 export function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const form = useForm<RegisterFormValues>({
     initialValues: {
@@ -42,7 +43,7 @@ export function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
         onRegisterSuccess();
       } else {
         // Redirect to login page if no callback provided
-        window.location.href = '/login';
+        navigate('/login');
       }
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Registration failed');

@@ -1,17 +1,17 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../auth/AuthContext';
 import { LoginForm } from '../auth/LoginForm';
-import { type JSX } from 'react';
+import { useContext, type JSX } from 'react';
+import { AuthContext } from '../auth/AuthContext';
 
 export const LoginPage = (): JSX.Element => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, isLoading } = useAuth();
+  const { login, isLoading } = useContext(AuthContext);
   
   const handleLogin = async (values: { email: string; password: string }) => {
-    const success = await login(values.email, values.password);
+    const success = await login({ email: values.email, password: values.password });
     
-    // Only redirect if login was successful
+    // Navigate only if login was successful
     if (success) {
       const from = (location.state as any)?.from?.pathname || '/drafts';
       navigate(from, { replace: true });

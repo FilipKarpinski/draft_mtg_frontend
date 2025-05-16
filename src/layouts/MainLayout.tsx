@@ -1,8 +1,7 @@
 import { AppShell, Burger, Group, NavLink, Button, Menu, Avatar } from '@mantine/core';
-import { useState, type JSX } from 'react';
+import { useState, type JSX, useContext } from 'react';
 import { IconFileText, IconUsers, IconLogin, IconLogout, IconUserCircle, IconUserPlus, IconChartBar } from '@tabler/icons-react';
-import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
-import { useAuth } from '../auth/AuthContext';
+import { Routes, Route, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { LoginPage } from '../pages/LoginPage';
 import { RegisterPage } from '../pages/RegisterPage';
 import { StatsPage } from '../pages/StatsPage';
@@ -11,15 +10,20 @@ import { ForgotPasswordPage } from '../pages/ForgotPasswordPage';
 import { ProtectedRoute } from '../auth/ProtectedRoute';
 import { DraftsPage } from '../pages/DraftsPage';
 import { PlayersPage } from '../pages/PlayersPage';
+import { AuthContext } from '../auth/AuthContext';
+import useAxiosInterceptors from '../auth/useAxiosInterceptors';
 
 export function MainLayout(): JSX.Element {
+  useAxiosInterceptors();
+  
   const [opened, setOpened] = useState<boolean>(false);
   const location = useLocation();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     await logout();
-    window.location.href = '/login';
+    navigate('/login');
   };
 
   return (
@@ -66,7 +70,7 @@ export function MainLayout(): JSX.Element {
           ) : (
             <Group gap="xs">
               <Button
-                variant="subtle"
+                variant={location.pathname === '/login' ? "filled" : "subtle"}
                 leftSection={<IconLogin size={16} />}
                 component={Link}
                 to="/login"
@@ -74,7 +78,7 @@ export function MainLayout(): JSX.Element {
                 Log In
               </Button>
               <Button
-                variant="light"
+                variant={location.pathname === '/register' ? "filled" : "subtle"}
                 leftSection={<IconUserPlus size={16} />}
                 component={Link}
                 to="/register"
@@ -93,6 +97,8 @@ export function MainLayout(): JSX.Element {
           component={Link}
           to="/drafts"
           active={location.pathname === '/drafts'}
+          variant="filled"
+          color="blue"
         />
         <NavLink
           label="Players"
@@ -100,6 +106,8 @@ export function MainLayout(): JSX.Element {
           component={Link}
           to="/players"
           active={location.pathname === '/players'}
+          variant="filled"
+          color="blue"
         />
         <NavLink
           label="Stats"
@@ -107,6 +115,8 @@ export function MainLayout(): JSX.Element {
           component={Link}
           to="/stats"
           active={location.pathname === '/stats'}
+          variant="filled"
+          color="blue"
         />
       </AppShell.Navbar>
 
