@@ -1,3 +1,5 @@
+import { type JSX } from 'react';
+
 export const ForgotPasswordPage = (): JSX.Element => (
   <div>
     <h1>Forgot Password</h1>

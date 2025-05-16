@@ -1,11 +1,12 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { LoginForm } from '../auth/LoginForm';
+import { type JSX } from 'react';
 
 export const LoginPage = (): JSX.Element => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, isLoading, error } = useAuth();
+  const { login, isLoading } = useAuth();
   
   const handleLogin = async (values: { email: string; password: string }) => {
     const success = await login(values.email, values.password);

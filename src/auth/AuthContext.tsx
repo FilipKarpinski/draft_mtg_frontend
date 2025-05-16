@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, type ReactNode } from 'react';
-import api, { setAccessToken, getAccessToken } from '../api/axiosInstance';
+import api, { setAccessToken } from '../api/axiosInstance';
 
 interface AuthContextType {
   isAuthenticated: boolean;

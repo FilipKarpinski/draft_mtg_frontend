@@ -1,4 +1,4 @@
-import { TextInput, PasswordInput, Button, Group, Title, Text, Anchor, Paper, Container, Alert } from '@mantine/core';
+import { TextInput, PasswordInput, Button, Title, Text, Anchor, Paper, Container, Alert } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconAt, IconLock, IconAlertCircle } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
@@ -35,7 +35,7 @@ export function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
     
     try {
       // Use the api for registration
-      const response = await api.post('/users', values);
+      await api.post('/users', values);
       
       // Registration successful
       if (onRegisterSuccess) {

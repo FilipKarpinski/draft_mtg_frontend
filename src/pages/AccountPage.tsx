@@ -1,3 +1,5 @@
+import { type JSX } from 'react';
+
 export const AccountPage = (): JSX.Element => (
   <div>
     <h1>My Account</h1>
