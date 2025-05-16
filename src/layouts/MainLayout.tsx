@@ -5,12 +5,12 @@ import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { LoginPage } from '../pages/LoginPage';
 import { RegisterPage } from '../pages/RegisterPage';
-import { DraftsPage } from '../pages/DraftsPage';
-import { PlayersPage } from '../pages/PlayersPage';
 import { StatsPage } from '../pages/StatsPage';
 import { AccountPage } from '../pages/AccountPage';
 import { ForgotPasswordPage } from '../pages/ForgotPasswordPage';
 import { ProtectedRoute } from '../auth/ProtectedRoute';
+import { DraftsPage } from '../pages/DraftsPage';
+import { PlayersPage } from '../pages/PlayersPage';
 
 export function MainLayout(): JSX.Element {
   const [opened, setOpened] = useState<boolean>(false);

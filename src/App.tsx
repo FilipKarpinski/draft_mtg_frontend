@@ -3,6 +3,7 @@ import { MantineProvider } from '@mantine/core';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext';
 import { MainLayout } from './layouts/MainLayout';
+import { type JSX } from 'react';
 
 function App(): JSX.Element {
   return (
