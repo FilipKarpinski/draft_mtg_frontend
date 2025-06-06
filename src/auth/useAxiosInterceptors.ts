@@ -25,8 +25,11 @@ const useAxiosInterceptors = (): void => {
       (response: AxiosResponse): AxiosResponse => response,
       async (error: any) => {
         const originalRequest = error.config as CustomAxiosRequestConfig;
+        
+        // Check if this is a failed refresh token request
+        const isRefreshRequest = originalRequest.url?.includes('/refresh');
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        if (error.response?.status === 401 && !originalRequest._retry && !isRefreshRequest) {
           originalRequest._retry = true;
 
           try {

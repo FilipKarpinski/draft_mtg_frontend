@@ -28,7 +28,7 @@ export const AuthContext = createContext<AuthContextType>({
   error: null,
   refreshAccessToken: async () => "",
   login: async () => false,
-  logout: () => {},
+  logout: () => { },
 });
 
 // Define props interface for AuthProvider
@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Use useEffect to update isAuthenticated when accessToken changes
   useEffect(() => {
     setIsAuthenticated(accessToken !== null);
@@ -54,13 +54,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const params = new URLSearchParams();
       params.append('username', credentials.email);
       params.append('password', credentials.password);
-      
-      const response = await authApi.post("/login", params, {
+
+      const response = await authApi.post<{ access_token: string, refresh_token: string }>("/login", params, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
-        }
+        },
+        withCredentials: true,
       });
-      
+
       setAccessToken(response.data.access_token);
       setError(null);
       return true;
@@ -84,9 +85,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const refreshAccessToken = async () => {
     setIsLoading(true);
     try {
-      const response = await authApi.post("/refresh", {});
-      setAccessToken(response.data.accessToken);
-      return response.data.accessToken;
+      const response = await authApi.post<{ access_token: string }>("/refresh", {})
+
+      const newToken = response.data.access_token;
+      setAccessToken(newToken);
+      return newToken;
     } catch (error) {
       logout();
       throw error;
@@ -96,14 +99,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      accessToken, 
+    <AuthContext.Provider value={{
+      accessToken,
       isAuthenticated,
       isLoading,
       error,
-      refreshAccessToken, 
-      login, 
-      logout 
+      refreshAccessToken,
+      login,
+      logout
     }}>
       {children}
     </AuthContext.Provider>

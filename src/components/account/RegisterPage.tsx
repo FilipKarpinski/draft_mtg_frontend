@@ -1,4 +1,4 @@
-import { RegisterForm } from '../auth/RegisterForm';
+import { RegisterForm } from '../../auth/RegisterForm';
 import { type JSX } from 'react';
 import { useNavigate } from 'react-router-dom';
 

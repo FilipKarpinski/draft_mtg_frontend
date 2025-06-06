@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LoginForm } from '../auth/LoginForm';
+import { LoginForm } from '../../auth/LoginForm';
 import { useContext, type JSX } from 'react';
-import { AuthContext } from '../auth/AuthContext';
+import { AuthContext } from '../../auth/AuthContext';
 
 export const LoginPage = (): JSX.Element => {
   const navigate = useNavigate();

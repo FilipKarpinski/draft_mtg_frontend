@@ -3,7 +3,7 @@ import { useForm } from '@mantine/form';
 import { IconAt, IconLock, IconAlertCircle } from '@tabler/icons-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { api } from './api';
+import { authApi } from './api';
 
 interface RegisterFormValues {
   email: string;
@@ -35,8 +35,7 @@ export function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
     setError(null);
     
     try {
-      // Use the api for registration
-      await api.post('/users', values);
+      await authApi.post<void>('/users', values);
       
       // Registration successful
       if (onRegisterSuccess) {

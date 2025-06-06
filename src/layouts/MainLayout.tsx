@@ -1,17 +1,17 @@
 import { AppShell, Burger, Group, NavLink, Button, Menu, Avatar } from '@mantine/core';
 import { useState, type JSX, useContext } from 'react';
-import { IconFileText, IconUsers, IconLogin, IconLogout, IconUserCircle, IconUserPlus, IconChartBar } from '@tabler/icons-react';
+import { IconFileText, IconUsers, IconLogin, IconLogout, IconUserCircle, IconUserPlus, IconChartBar, IconLock } from '@tabler/icons-react';
 import { Routes, Route, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
-import { LoginPage } from '../pages/LoginPage';
-import { RegisterPage } from '../pages/RegisterPage';
-import { StatsPage } from '../pages/StatsPage';
-import { AccountPage } from '../pages/AccountPage';
-import { ForgotPasswordPage } from '../pages/ForgotPasswordPage';
+import { LoginPage } from '../components/account/LoginPage';
+import { RegisterPage } from '../components/account/RegisterPage';
+import { StatsPage } from '../components/stats/StatsPage';
+import { AccountPage } from '../components/account/AccountPage';
 import { ProtectedRoute } from '../auth/ProtectedRoute';
-import { DraftsPage } from '../pages/DraftsPage';
-import { PlayersPage } from '../pages/PlayersPage';
+import { DraftsPage } from '../components/draft/DraftsPage';
+import { PlayersPage } from '../components/player/PlayersPage';
 import { AuthContext } from '../auth/AuthContext';
 import useAxiosInterceptors from '../auth/useAxiosInterceptors';
+import { ChangePasswordPage } from '../components/account/ChangePasswordPage';
 
 export function MainLayout(): JSX.Element {
   useAxiosInterceptors();
@@ -58,6 +58,13 @@ export function MainLayout(): JSX.Element {
                   to="/account"
                 >
                   My Account
+                </Menu.Item>
+                <Menu.Item
+                  leftSection={<IconLock size={14} />}
+                  component={Link}
+                  to="/change-password"
+                >
+                  Change Password
                 </Menu.Item>
                 <Menu.Item
                   leftSection={<IconLogout size={14} />}
@@ -125,31 +132,24 @@ export function MainLayout(): JSX.Element {
           <Route path="/" element={<Navigate to="/drafts" />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           
           {/* Protected routes */}
           <Route
             path="/drafts"
             element={
-              <ProtectedRoute>
                 <DraftsPage />
-              </ProtectedRoute>
             }
           />
           <Route
             path="/players"
             element={
-              <ProtectedRoute>
                 <PlayersPage />
-              </ProtectedRoute>
             }
           />
           <Route
             path="/stats"
             element={
-              <ProtectedRoute>
                 <StatsPage />
-              </ProtectedRoute>
             }
           />
           <Route
@@ -157,6 +157,14 @@ export function MainLayout(): JSX.Element {
             element={
               <ProtectedRoute>
                 <AccountPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/change-password"
+            element={
+              <ProtectedRoute>
+                <ChangePasswordPage />
               </ProtectedRoute>
             }
           />
