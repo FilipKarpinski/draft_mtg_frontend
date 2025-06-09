@@ -1,7 +1,5 @@
 import { useState, useEffect, type JSX } from 'react';
 import { 
-  Card, 
-  Title, 
   Container, 
   Group, 
   Button,
@@ -11,12 +9,18 @@ import {
   Select,
   Text,
   ActionIcon,
-  Divider
+  Divider,
+  Card,
+  Title
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconAlertCircle, IconFileText, IconArrowLeft, IconX, IconArrowUp, IconArrowDown, IconUser } from '@tabler/icons-react';
+import { useListState } from '@mantine/hooks';
+import { IconAlertCircle, IconFileText, IconArrowLeft, IconX, IconUser, IconGripVertical } from '@tabler/icons-react';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import cx from 'clsx';
 import { authApi } from '../../auth/api';
 import type { Player } from '../../types';
+import classes from './DraftCreate.module.css';
 
 interface DraftCreateProps {
   onBack: () => void;
@@ -28,17 +32,22 @@ interface CreateDraftForm {
   date: string;
 }
 
+interface SelectedPlayer {
+  id: number;
+  name: string;
+}
+
 export const DraftCreate = ({ onBack, onDraftCreated }: DraftCreateProps): JSX.Element => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
-  const [selectedPlayerIds, setSelectedPlayerIds] = useState<number[]>([]);
   const [loadingPlayers, setLoadingPlayers] = useState<boolean>(true);
+  const [selectedPlayers, selectedPlayersHandlers] = useListState<SelectedPlayer>([]);
 
   const form = useForm<CreateDraftForm>({
     initialValues: {
       name: '',
-      date: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
+      date: new Date().toISOString().split('T')[0],
     },
     validate: {
       name: (value) => (value.trim().length > 0 ? null : 'Draft name is required'),
@@ -64,44 +73,28 @@ export const DraftCreate = ({ onBack, onDraftCreated }: DraftCreateProps): JSX.E
     fetchPlayers();
   }, []);
 
-  const getPlayerName = (playerId: number): string => {
-    const player = players.find(p => p.id === playerId);
-    return player ? player.name : `Player ${playerId}`;
-  };
-
   const getAvailablePlayers = () => {
-    return players.filter(player => !selectedPlayerIds.includes(player.id));
+    return players.filter(player => !selectedPlayers.some(sp => sp.id === player.id));
   };
 
   const addPlayer = (playerId: string | null) => {
     if (playerId) {
-      const playerIdNum = parseInt(playerId);
-      setSelectedPlayerIds([...selectedPlayerIds, playerIdNum]);
+      const player = players.find(p => p.id === parseInt(playerId));
+      if (player) {
+        selectedPlayersHandlers.append({ id: player.id, name: player.name });
+      }
     }
   };
 
   const removePlayer = (playerId: number) => {
-    setSelectedPlayerIds(selectedPlayerIds.filter(id => id !== playerId));
-  };
-
-  const movePlayerUp = (index: number) => {
-    if (index > 0) {
-      const newPlayerIds = [...selectedPlayerIds];
-      [newPlayerIds[index - 1], newPlayerIds[index]] = [newPlayerIds[index], newPlayerIds[index - 1]];
-      setSelectedPlayerIds(newPlayerIds);
-    }
-  };
-
-  const movePlayerDown = (index: number) => {
-    if (index < selectedPlayerIds.length - 1) {
-      const newPlayerIds = [...selectedPlayerIds];
-      [newPlayerIds[index], newPlayerIds[index + 1]] = [newPlayerIds[index + 1], newPlayerIds[index]];
-      setSelectedPlayerIds(newPlayerIds);
+    const index = selectedPlayers.findIndex(sp => sp.id === playerId);
+    if (index !== -1) {
+      selectedPlayersHandlers.remove(index);
     }
   };
 
   const handleSubmit = async (values: CreateDraftForm) => {
-    if (selectedPlayerIds.length === 0) {
+    if (selectedPlayers.length === 0) {
       setError('At least one player must be selected');
       return;
     }
@@ -113,13 +106,12 @@ export const DraftCreate = ({ onBack, onDraftCreated }: DraftCreateProps): JSX.E
       const response = await authApi.post<any>('/drafts', {
         name: values.name.trim(),
         date: values.date,
-        player_ids: selectedPlayerIds
+        player_ids: selectedPlayers.map(sp => sp.id)
       });
       
       form.reset();
-      setSelectedPlayerIds([]);
+      selectedPlayersHandlers.setState([]);
       
-      // Navigate to draft detail immediately with the returned data
       onDraftCreated(response.data);
       
     } catch (err: any) {
@@ -129,6 +121,39 @@ export const DraftCreate = ({ onBack, onDraftCreated }: DraftCreateProps): JSX.E
       setIsLoading(false);
     }
   };
+
+  const items = selectedPlayers.map((player, index) => (
+    <Draggable key={player.id.toString()} index={index} draggableId={player.id.toString()}>
+      {(provided, snapshot) => (
+        <div
+          className={cx(classes.item, { [classes.itemDragging]: snapshot.isDragging })}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+          ref={provided.innerRef}
+        >
+          <div className={classes.playerInfo}>
+            <IconGripVertical size={16} color="var(--mantine-color-gray-6)" />
+            <Text className={classes.playerOrder}>#{index + 1}</Text>
+            <IconUser size={16} />
+            <Text fw={500}>{player.name}</Text>
+          </div>
+          <ActionIcon
+            variant="subtle"
+            color="red"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              removePlayer(player.id);
+            }}
+            disabled={isLoading}
+            className={classes.removeButton}
+          >
+            <IconX size={14} />
+          </ActionIcon>
+        </div>
+      )}
+    </Draggable>
+  ));
 
   if (loadingPlayers) {
     return (
@@ -189,11 +214,10 @@ export const DraftCreate = ({ onBack, onDraftCreated }: DraftCreateProps): JSX.E
 
               <Divider my="md" />
 
-              {/* Player Selection */}
               <Stack gap="sm">
                 <Title order={4}>Players</Title>
                 <Text size="sm" c="dimmed">
-                  Select players for this draft. The order matters and can be adjusted using the arrow buttons.
+                  Select players for this draft. The order matters and can be adjusted by dragging and dropping.
                 </Text>
 
                 <Select
@@ -208,59 +232,34 @@ export const DraftCreate = ({ onBack, onDraftCreated }: DraftCreateProps): JSX.E
                   clearable={false}
                 />
 
-                {selectedPlayerIds.length === 0 ? (
+                {selectedPlayers.length === 0 ? (
                   <Text c="dimmed" ta="center" py="md">
                     No players selected yet
                   </Text>
                 ) : (
                   <Stack gap="xs">
                     <Text fw={500} size="sm">
-                      Selected Players ({selectedPlayerIds.length}):
+                      Selected Players ({selectedPlayers.length}):
                     </Text>
-                    {selectedPlayerIds.map((playerId, index) => (
-                      <Card key={playerId} withBorder p="sm" radius="sm">
-                        <Group justify="space-between" align="center">
-                          <Group>
-                            <Text size="sm" c="dimmed" fw={500}>
-                              #{index + 1}
-                            </Text>
-                            <IconUser size={16} />
-                            <Text fw={500}>{getPlayerName(playerId)}</Text>
-                          </Group>
-                          <Group gap="xs">
-                            <ActionIcon
-                              variant="subtle"
-                              size="sm"
-                              onClick={() => movePlayerUp(index)}
-                              disabled={index === 0 || isLoading}
-                            >
-                              <IconArrowUp size={14} />
-                            </ActionIcon>
-                            <ActionIcon
-                              variant="subtle"
-                              size="sm"
-                              onClick={() => movePlayerDown(index)}
-                              disabled={index === selectedPlayerIds.length - 1 || isLoading}
-                            >
-                              <IconArrowDown size={14} />
-                            </ActionIcon>
-                            <ActionIcon
-                              variant="subtle"
-                              color="red"
-                              size="sm"
-                              onClick={() => removePlayer(playerId)}
-                              disabled={isLoading}
-                            >
-                              <IconX size={14} />
-                            </ActionIcon>
-                          </Group>
-                        </Group>
-                      </Card>
-                    ))}
+                    
+                    <DragDropContext
+                      onDragEnd={({ destination, source }) =>
+                        selectedPlayersHandlers.reorder({ from: source.index, to: destination?.index || 0 })
+                      }
+                    >
+                      <Droppable droppableId="players-list" direction="vertical">
+                        {(provided) => (
+                          <div {...provided.droppableProps} ref={provided.innerRef}>
+                            {items}
+                            {provided.placeholder}
+                          </div>
+                        )}
+                      </Droppable>
+                    </DragDropContext>
                   </Stack>
                 )}
 
-                {getAvailablePlayers().length === 0 && selectedPlayerIds.length < players.length && (
+                {getAvailablePlayers().length === 0 && selectedPlayers.length < players.length && (
                   <Text size="sm" c="dimmed">
                     All available players have been selected.
                   </Text>
@@ -278,7 +277,7 @@ export const DraftCreate = ({ onBack, onDraftCreated }: DraftCreateProps): JSX.E
                 <Button 
                   type="submit" 
                   loading={isLoading}
-                  disabled={selectedPlayerIds.length === 0}
+                  disabled={selectedPlayers.length === 0}
                   leftSection={<IconFileText size={16} />}
                 >
                   Create Draft

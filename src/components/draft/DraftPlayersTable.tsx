@@ -1,5 +1,6 @@
 import { Card, Group, Title, Button, Table, Text, Select, Badge, ActionIcon } from '@mantine/core';
 import { IconUsers, IconX } from '@tabler/icons-react';
+import confetti from 'canvas-confetti';
 import type { DraftDetailData } from '../../types';
 import { DECK_COLOR_OPTIONS, COLOR_MAP } from './constants';
 import type { JSX } from 'react';
@@ -27,6 +28,44 @@ export const DraftPlayersTable = ({
   removeDeckColor,
   calculateResults,
 }: DraftPlayersTableProps): JSX.Element => {
+  
+  const handleCalculateResults = async () => {
+    try {
+      await calculateResults();
+      
+      // Trigger confetti animation after successful calculation
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57'],
+      });
+      
+      // Additional confetti burst for extra celebration
+      setTimeout(() => {
+        confetti({
+          particleCount: 50,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 }
+        });
+      }, 250);
+      
+      setTimeout(() => {
+        confetti({
+          particleCount: 50,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 }
+        });
+      }, 400);
+      
+    } catch (error) {
+      console.error('Error calculating results:', error);
+      // Don't show confetti if there was an error
+    }
+  };
+
   return (
     <Card shadow="sm" p="lg" radius="md" withBorder>
       <Group mb="md" justify="space-between">
@@ -37,7 +76,7 @@ export const DraftPlayersTable = ({
         
         {!hasUnfinishedMatches && isAuthenticated && (
           <Button
-            onClick={calculateResults}
+            onClick={handleCalculateResults}
             loading={calculatingResults}
             color="green"
             size="sm"

@@ -10,7 +10,7 @@ interface AuthContextType {
   error: string | null;
   refreshAccessToken: () => Promise<string>;
   login: (credentials: LoginCredentials) => Promise<boolean>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 // Define interface for login credentials
@@ -28,7 +28,7 @@ export const AuthContext = createContext<AuthContextType>({
   error: null,
   refreshAccessToken: async () => "",
   login: async () => false,
-  logout: () => { },
+  logout: async () => { },
 });
 
 // Define props interface for AuthProvider
@@ -78,8 +78,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
-  const logout = () => {
-    setAccessToken(null);
+  const logout = async () => {
+    try {
+      // Make logout API call to invalidate refresh token on server
+      await authApi.post("/logout", {}, { withCredentials: true });
+    } catch (error) {
+      // Continue with logout even if API call fails
+      console.error("Logout API call failed:", error);
+    } finally {
+      // Clear local state
+      setAccessToken(null);
+      setError(null);
+      
+      // Clear Authorization header from axios defaults
+      delete authApi.defaults.headers.common["Authorization"];
+    }
   };
 
   const refreshAccessToken = async () => {
@@ -91,7 +104,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setAccessToken(newToken);
       return newToken;
     } catch (error) {
-      logout();
+      await logout();
       throw error;
     } finally {
       setIsLoading(false);

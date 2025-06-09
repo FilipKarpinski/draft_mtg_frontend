@@ -1,0 +1,40 @@
+.item {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    cursor: grab;
+    user-select: none;
+}
+
+.item:hover {
+    background: #f8f9fa;
+}
+
+.itemDragging {
+    opacity: 0.8;
+    transform: rotate(2deg);
+    cursor: grabbing;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.playerInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.playerOrder {
+    font-weight: 600;
+    color: #868e96;
+    font-size: 14px;
+    min-width: 32px;
+}
+
+.removeButton {
+    pointer-events: auto;
+}

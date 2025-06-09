@@ -38,7 +38,7 @@ const useAxiosInterceptors = (): void => {
             originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
             return authApi(originalRequest);
           } catch (refreshError) {
-            logout();
+            await logout();
             return Promise.reject(refreshError);
           }
         }
