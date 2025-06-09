@@ -59,21 +59,6 @@ export const DraftDetail = ({ draftId, draftData, onBack }: DraftDetailProps): J
     fetchDraftDetail();
   }, [draftId, draftData]);
 
-  const getPlayerById = (playerId: number): string => {
-    const draftPlayer = draft?.draft_players.find(dp => dp.player_id === playerId);
-    if (!draftPlayer) return 'Unknown Player';
-    
-    // Find player name from match data
-    const match = draft?.rounds[0]?.matches.find(m => 
-      m.player_1_id === playerId || m.player_2_id === playerId
-    );
-    
-    if (match?.player_1_id === playerId) return match.player_1.name;
-    if (match?.player_2_id === playerId) return match.player_2.name;
-    
-    return `Player ${playerId}`;
-  };
-
   const updateMatchScore = async (matchId: number, score: string) => {
     if (!isAuthenticated) {
       setError('You must be logged in to update match scores');
@@ -129,7 +114,7 @@ export const DraftDetail = ({ draftId, draftData, onBack }: DraftDetailProps): J
         if (!prev) return prev;
         
         const updatedDraftPlayers = prev.draft_players.map(draftPlayer => 
-          draftPlayer.player_id === playerId 
+          draftPlayer.player.id === playerId 
             ? { ...draftPlayer, deck_colors: deckColors }
             : draftPlayer
         );
@@ -161,12 +146,12 @@ export const DraftDetail = ({ draftId, draftData, onBack }: DraftDetailProps): J
       return [];
     }
     
-    const winningPlayer = draft?.draft_players.find(dp => dp.player_id === winningPlayerId);
+    const winningPlayer = draft?.draft_players.find(dp => dp.player.id === winningPlayerId);
     return winningPlayer?.deck_colors || [];
   };
 
   const addDeckColor = async (playerId: number, newColor: string) => {
-    const currentPlayer = draft?.draft_players.find(p => p.player_id === playerId);
+    const currentPlayer = draft?.draft_players.find(p => p.player.id === playerId);
     if (!currentPlayer || currentPlayer.deck_colors.includes(newColor)) return;
     
     const updatedColors = [...currentPlayer.deck_colors, newColor];
@@ -174,7 +159,7 @@ export const DraftDetail = ({ draftId, draftData, onBack }: DraftDetailProps): J
   };
 
   const removeDeckColor = async (playerId: number, colorToRemove: string) => {
-    const currentPlayer = draft?.draft_players.find(p => p.player_id === playerId);
+    const currentPlayer = draft?.draft_players.find(p => p.player.id === playerId);
     if (!currentPlayer) return;
     
     const updatedColors = currentPlayer.deck_colors.filter(color => color !== colorToRemove);
@@ -268,7 +253,6 @@ export const DraftDetail = ({ draftId, draftData, onBack }: DraftDetailProps): J
             hasUnfinishedMatches={hasUnfinishedMatches()}
             calculatingResults={calculatingResults}
             updatingPlayers={updatingPlayers}
-            getPlayerById={getPlayerById}
             addDeckColor={addDeckColor}
             removeDeckColor={removeDeckColor}
             calculateResults={calculateResults}

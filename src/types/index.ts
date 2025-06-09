@@ -28,7 +28,7 @@ export interface Round {
 
 export interface DraftPlayer {
   draft_id: number;
-  player_id: number;
+  player: Player;
   deck_colors: string[];
   points: number;
   final_place: number | null;

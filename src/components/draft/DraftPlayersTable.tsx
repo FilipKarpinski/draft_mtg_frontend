@@ -11,7 +11,6 @@ interface DraftPlayersTableProps {
   hasUnfinishedMatches: boolean;
   calculatingResults: boolean;
   updatingPlayers: Set<number>;
-  getPlayerById: (playerId: number) => string;
   addDeckColor: (playerId: number, color: string) => Promise<void>;
   removeDeckColor: (playerId: number, color: string) => Promise<void>;
   calculateResults: () => Promise<void>;
@@ -23,7 +22,6 @@ export const DraftPlayersTable = ({
   hasUnfinishedMatches,
   calculatingResults,
   updatingPlayers,
-  getPlayerById,
   addDeckColor,
   removeDeckColor,
   calculateResults,
@@ -107,13 +105,13 @@ export const DraftPlayersTable = ({
                 return a.order - b.order;
               } else {
                 // Sort by points (descending) if all players have points
-                return b.points - a.points;
+                return (a.final_place || 0) - (b.final_place || 0);
               }
             })
             .map((draftPlayer) => (
-              <Table.Tr key={draftPlayer.player_id}>
+              <Table.Tr key={draftPlayer.player.id}>
                 <Table.Td>
-                  <Text fw={500}>{getPlayerById(draftPlayer.player_id)}</Text>
+                  <Text fw={500}>{draftPlayer.player.name}</Text>
                 </Table.Td>
                 <Table.Td>
                   <Group gap="xs" align="center">
@@ -123,11 +121,11 @@ export const DraftPlayersTable = ({
                         !draftPlayer.deck_colors.includes(option.value)
                       )}
                       value=""
-                      onChange={(value) => value && addDeckColor(draftPlayer.player_id, value)}
+                      onChange={(value) => value && addDeckColor(draftPlayer.player.id, value)}
                       placeholder="+ Add"
                       size="xs"
                       w={80}
-                      disabled={updatingPlayers.has(draftPlayer.player_id) || !isAuthenticated}
+                      disabled={updatingPlayers.has(draftPlayer.player.id) || !isAuthenticated}
                       clearable={false}
                       searchable={false}
                       style={{ flexShrink: 0 }}
@@ -146,9 +144,9 @@ export const DraftPlayersTable = ({
                             cursor: 'pointer',
                             fontWeight: 600
                           }}
-                          onClick={() => !updatingPlayers.has(draftPlayer.player_id) && isAuthenticated && removeDeckColor(draftPlayer.player_id, color)}
+                          onClick={() => !updatingPlayers.has(draftPlayer.player.id) && isAuthenticated && removeDeckColor(draftPlayer.player.id, color)}
                           rightSection={
-                            !updatingPlayers.has(draftPlayer.player_id) && (
+                            !updatingPlayers.has(draftPlayer.player.id) && (
                               <ActionIcon
                                 size="xs"
                                 color={color === 'white' ? 'dark' : 'white'}
