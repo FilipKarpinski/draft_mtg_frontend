@@ -1,8 +1,8 @@
 .item {
   display: flex;
   align-items: center;
-  background: white;
-  border: 1px solid #e9ecef;
+  background: var(--mantine-color-body);
+  border: 1px solid var(--mantine-color-default-border);
   border-radius: 8px;
   padding: 12px;
   margin-bottom: 8px;
@@ -11,7 +11,7 @@
 }
 
 .item:hover {
-  background: #f8f9fa;
+  background: var(--mantine-color-gray-light-hover);
 }
 
 .itemDragging {
@@ -30,7 +30,7 @@
 
 .playerOrder {
   font-weight: 600;
-  color: #868e96;
+  color: var(--mantine-color-dimmed);
   font-size: 14px;
   min-width: 32px;
 }

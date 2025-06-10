@@ -112,6 +112,11 @@ export function MainLayout(): JSX.Element {
               color="blue"
               hiddenFrom="sm"
               onClick={() => setOpened(false)}
+              styles={{
+                root: {
+                  borderRadius: '8px',
+                },
+              }}
             />
             <NavLink
               label="Register"
@@ -123,6 +128,11 @@ export function MainLayout(): JSX.Element {
               color="blue"
               hiddenFrom="sm"
               onClick={() => setOpened(false)}
+              styles={{
+                root: {
+                  borderRadius: '8px',
+                },
+              }}
             />
           </>
         )}
@@ -135,6 +145,11 @@ export function MainLayout(): JSX.Element {
           variant="filled"
           color="blue"
           onClick={() => setOpened(false)}
+          styles={{
+            root: {
+              borderRadius: '8px',
+            },
+          }}
         />
         <NavLink
           label="Players"
@@ -145,6 +160,11 @@ export function MainLayout(): JSX.Element {
           variant="filled"
           color="blue"
           onClick={() => setOpened(false)}
+          styles={{
+            root: {
+              borderRadius: '8px',
+            },
+          }}
         />
         <NavLink
           label="Stats"
@@ -155,6 +175,11 @@ export function MainLayout(): JSX.Element {
           variant="filled"
           color="blue"
           onClick={() => setOpened(false)}
+          styles={{
+            root: {
+              borderRadius: '8px',
+            },
+          }}
         />
       </AppShell.Navbar>
 
@@ -173,7 +198,7 @@ export function MainLayout(): JSX.Element {
           <Aurora
             colorStops={['#3A29FF', '#FF94B4', '#FF3232']}
             blend={0.8}
-            amplitude={1}
+            amplitude={0.3}
             speed={0.5}
           />
         </div>

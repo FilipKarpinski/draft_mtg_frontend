@@ -134,7 +134,7 @@ export const PlayersPage = (): JSX.Element => {
                 }}
                 onClick={() => handlePlayerClick(player.id)}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--mantine-color-gray-1)';
+                  e.currentTarget.style.backgroundColor = 'var(--mantine-color-gray-light-hover)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = 'transparent';
