@@ -1,6 +1,16 @@
-import { TextInput, PasswordInput, Button, Title, Text, Anchor, Paper, Container, Alert } from '@mantine/core';
+import {
+  TextInput,
+  PasswordInput,
+  Button,
+  Title,
+  Text,
+  Anchor,
+  Paper,
+  Container,
+  Alert,
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconAt, IconLock, IconAlertCircle } from '@tabler/icons-react';
+import { IconAt, IconLock, IconAlertCircle, IconCheck } from '@tabler/icons-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { authApi } from './api';
@@ -17,6 +27,7 @@ interface RegisterFormProps {
 export function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const form = useForm<RegisterFormValues>({
@@ -33,17 +44,23 @@ export function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
   const handleSubmit = async (values: RegisterFormValues) => {
     setIsLoading(true);
     setError(null);
-    
+    setSuccess(false);
+
     try {
       await authApi.post<void>('/users', values);
-      
+
       // Registration successful
-      if (onRegisterSuccess) {
-        onRegisterSuccess();
-      } else {
-        // Redirect to login page if no callback provided
-        navigate('/login');
-      }
+      setSuccess(true);
+
+      // Show success message briefly, then redirect or call callback
+      setTimeout(() => {
+        if (onRegisterSuccess) {
+          onRegisterSuccess();
+        } else {
+          // Redirect to login page if no callback provided
+          navigate('/login');
+        }
+      }, 1500);
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Registration failed');
     } finally {
@@ -70,6 +87,12 @@ export function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
           </Alert>
         )}
 
+        {success && (
+          <Alert icon={<IconCheck size={16} />} color="green" title="Success" mb="md">
+            Account created successfully! Redirecting to login page...
+          </Alert>
+        )}
+
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <TextInput
             withAsterisk
@@ -78,6 +101,7 @@ export function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
             leftSection={<IconAt size={16} />}
             {...form.getInputProps('email')}
             mb="md"
+            disabled={success}
           />
 
           <PasswordInput
@@ -87,13 +111,14 @@ export function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
             leftSection={<IconLock size={16} />}
             {...form.getInputProps('password')}
             mb="xl"
+            disabled={success}
           />
 
-          <Button type="submit" fullWidth loading={isLoading}>
+          <Button type="submit" fullWidth loading={isLoading} disabled={success}>
             Register
           </Button>
         </form>
       </Paper>
     </Container>
   );
-} 
+}

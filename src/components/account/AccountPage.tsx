@@ -54,7 +54,7 @@ export const AccountPage = (): JSX.Element => {
       <Title order={1} mb="xl">
         My Account
       </Title>
-      
+
       {userData && (
         <Card shadow="sm" p="lg" radius="md" withBorder>
           <Group mb="md">
@@ -71,10 +71,7 @@ export const AccountPage = (): JSX.Element => {
           <Group mb="md" align="center">
             <IconShieldCheck size={20} stroke={1.5} style={{ opacity: 0.7 }} />
             <Text fw={500}>Account Status:</Text>
-            <Badge 
-              color={userData.is_active ? 'green' : 'red'}
-              variant="filled"
-            >
+            <Badge color={userData.is_active ? 'green' : 'red'} variant="filled">
               {userData.is_active ? 'Active' : 'Inactive'}
             </Badge>
           </Group>
@@ -92,4 +89,4 @@ export const AccountPage = (): JSX.Element => {
       )}
     </Container>
   );
-}; 
+};

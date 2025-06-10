@@ -28,7 +28,9 @@ export const createColorGradient = (colors: string[]): string => {
     const colorBg = COLOR_MAP[colors[0] as keyof typeof COLOR_MAP]?.bg;
     return colorBg || 'var(--mantine-color-gray-1)';
   }
-  
-  const gradientColors = colors.map(color => COLOR_MAP[color as keyof typeof COLOR_MAP]?.bg || '#ccc');
+
+  const gradientColors = colors.map(
+    (color) => COLOR_MAP[color as keyof typeof COLOR_MAP]?.bg || '#ccc'
+  );
   return `linear-gradient(135deg, ${gradientColors.join(', ')})`;
-}; 
+};

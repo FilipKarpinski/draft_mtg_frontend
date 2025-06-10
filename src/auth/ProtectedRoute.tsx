@@ -9,12 +9,16 @@ interface ProtectedRouteProps {
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const location = useLocation();
   const { isAuthenticated, isLoading } = useContext(AuthContext);
-  
+
   // Show loading state while checking authentication
   if (isLoading) {
     return <div>Loading...</div>;
   }
-  
+
   // Pass the current location to Navigate so user can be redirected back after login
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" state={{ from: location }} replace />;
-}; 
+  return isAuthenticated ? (
+    <>{children}</>
+  ) : (
+    <Navigate to="/login" state={{ from: location }} replace />
+  );
+};

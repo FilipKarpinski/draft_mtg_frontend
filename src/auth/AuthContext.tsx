@@ -1,6 +1,6 @@
-import { createContext, useState, useEffect, type ReactNode } from "react";
-import { authApi } from "./api";
-import { AxiosError } from "axios";
+import { createContext, useState, useEffect, type ReactNode } from 'react';
+import { authApi } from './api';
+import { AxiosError } from 'axios';
 
 // Define interface for the context value
 interface AuthContextType {
@@ -26,9 +26,9 @@ export const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   isLoading: false,
   error: null,
-  refreshAccessToken: async () => "",
+  refreshAccessToken: async () => '',
   login: async () => false,
-  logout: async () => { },
+  logout: async () => {},
 });
 
 // Define props interface for AuthProvider
@@ -55,18 +55,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       params.append('username', credentials.email);
       params.append('password', credentials.password);
 
-      const response = await authApi.post<{ access_token: string, refresh_token: string }>("/login", params, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        withCredentials: true,
-      });
+      const response = await authApi.post<{ access_token: string; refresh_token: string }>(
+        '/login',
+        params,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          withCredentials: true,
+        }
+      );
 
       setAccessToken(response.data.access_token);
       setError(null);
       return true;
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error('Login failed:', error);
       if (error instanceof AxiosError) {
         setError(error.response?.data.detail || 'Authentication failed');
       } else {
@@ -81,24 +85,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const logout = async () => {
     try {
       // Make logout API call to invalidate refresh token on server
-      await authApi.post("/logout", {}, { withCredentials: true });
+      await authApi.post('/logout', {}, { withCredentials: true });
     } catch (error) {
       // Continue with logout even if API call fails
-      console.error("Logout API call failed:", error);
+      console.error('Logout API call failed:', error);
     } finally {
       // Clear local state
       setAccessToken(null);
       setError(null);
-      
+
       // Clear Authorization header from axios defaults
-      delete authApi.defaults.headers.common["Authorization"];
+      delete authApi.defaults.headers.common['Authorization'];
     }
   };
 
   const refreshAccessToken = async () => {
     setIsLoading(true);
     try {
-      const response = await authApi.post<{ access_token: string }>("/refresh", {})
+      const response = await authApi.post<{ access_token: string }>('/refresh', {});
 
       const newToken = response.data.access_token;
       setAccessToken(newToken);
@@ -112,15 +116,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   return (
-    <AuthContext.Provider value={{
-      accessToken,
-      isAuthenticated,
-      isLoading,
-      error,
-      refreshAccessToken,
-      login,
-      logout
-    }}>
+    <AuthContext.Provider
+      value={{
+        accessToken,
+        isAuthenticated,
+        isLoading,
+        error,
+        refreshAccessToken,
+        login,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

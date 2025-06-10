@@ -1,4 +1,15 @@
-import { TextInput, PasswordInput, Button, Group, Title, Text, Anchor, Paper, Container, Alert } from '@mantine/core';
+import {
+  TextInput,
+  PasswordInput,
+  Button,
+  Group,
+  Title,
+  Text,
+  Anchor,
+  Paper,
+  Container,
+  Alert,
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconAt, IconLock, IconAlertCircle } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
@@ -14,8 +25,7 @@ interface LoginFormProps {
   error?: string | null;
 }
 
-export function LoginForm({ onLogin, isLoading: externalLoading = false , error }: LoginFormProps) {
-  
+export function LoginForm({ onLogin, isLoading: externalLoading = false, error }: LoginFormProps) {
   const form = useForm<LoginFormValues>({
     initialValues: {
       email: '',
@@ -33,9 +43,14 @@ export function LoginForm({ onLogin, isLoading: externalLoading = false , error 
 
   // Format the error message to be more user-friendly
   let displayError = error;
-  
+
+  // Check for inactive user error
+  if (displayError && displayError.includes('Inactive user')) {
+    displayError =
+      'Your account is inactive. Please contact our local hero, the best of the best, the OG G, Karprix Gordon. He will activate your account, peasant. eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+  }
   // If the error contains "Field required" messages, make them more specific
-  if (displayError && displayError.includes('Field required')) {
+  else if (displayError && displayError.includes('Field required')) {
     if (displayError.includes('username') && displayError.includes('password')) {
       displayError = 'Email and password are required';
     } else if (displayError.includes('username')) {
@@ -44,7 +59,6 @@ export function LoginForm({ onLogin, isLoading: externalLoading = false , error 
       displayError = 'Password is required';
     }
   }
-  
 
   return (
     <Container size="xs" mt={40}>
@@ -97,4 +111,4 @@ export function LoginForm({ onLogin, isLoading: externalLoading = false , error 
       </Paper>
     </Container>
   );
-} 
+}

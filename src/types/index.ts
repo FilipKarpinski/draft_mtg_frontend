@@ -37,6 +37,8 @@ export interface DraftPlayer {
 
 export interface DraftDetailData {
   id: number;
+  name: string;
+  date: string;
   rounds: Round[];
   draft_players: DraftPlayer[];
 }
@@ -45,4 +47,4 @@ export interface UserData {
   email: string;
   is_active: boolean;
   is_admin: boolean;
-} 
+}

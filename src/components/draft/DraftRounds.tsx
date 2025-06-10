@@ -25,15 +25,15 @@ export const DraftRounds = ({
   const handleAccordionChange = (value: string[]) => {
     // Small delay to allow accordion animation to complete
     setTimeout(() => {
-      value.forEach(roundValue => {
+      value.forEach((roundValue) => {
         const element = accordionRefs.current[roundValue];
         if (element) {
           // Scroll to the bottom of the expanded accordion item
           const rect = element.getBoundingClientRect();
           const elementBottom = window.scrollY + rect.bottom;
-          window.scrollTo({ 
+          window.scrollTo({
             top: elementBottom - window.innerHeight + 200, // px padding from bottom
-            behavior: 'smooth'
+            behavior: 'smooth',
           });
         }
       });
@@ -51,10 +51,12 @@ export const DraftRounds = ({
         {draft.rounds
           .sort((a, b) => a.number - b.number)
           .map((round) => (
-            <Accordion.Item 
-              key={round.id} 
+            <Accordion.Item
+              key={round.id}
               value={`round-${round.id}`}
-              ref={(el) => { accordionRefs.current[`round-${round.id}`] = el; }}
+              ref={(el) => {
+                accordionRefs.current[`round-${round.id}`] = el;
+              }}
             >
               <Accordion.Control>
                 <Group>
@@ -84,15 +86,25 @@ export const DraftRounds = ({
                             disabled={updatingMatches.has(match.id) || !isAuthenticated}
                             styles={{
                               input: {
-                                background: createColorGradient(getWinningPlayerColors(match, match.score)),
-                                borderColor: match.score && match.score !== '0-0' ? 'var(--mantine-color-gray-5)' : 'var(--mantine-color-gray-3)',
+                                background: createColorGradient(
+                                  getWinningPlayerColors(match, match.score)
+                                ),
+                                borderColor:
+                                  match.score && match.score !== '0-0'
+                                    ? 'var(--mantine-color-gray-5)'
+                                    : 'var(--mantine-color-gray-3)',
                                 fontWeight: 700,
                                 fontSize: '14px',
                                 textAlign: 'center',
-                                color: match.score && match.score !== '0-0' ? 'white' : 'var(--mantine-color-gray-7)',
-                                textShadow: match.score && match.score !== '0-0' ? 
-                                  '0 1px 3px rgba(0,0,0,0.6), 0 2px 6px rgba(0,0,0,0.4), 0 0 1px rgba(0,0,0,0.9)' : 'none'
-                              }
+                                color:
+                                  match.score && match.score !== '0-0'
+                                    ? 'white'
+                                    : 'var(--mantine-color-gray-7)',
+                                textShadow:
+                                  match.score && match.score !== '0-0'
+                                    ? '0 1px 3px rgba(0,0,0,0.6), 0 2px 6px rgba(0,0,0,0.4), 0 0 1px rgba(0,0,0,0.9)'
+                                    : 'none',
+                              },
                             }}
                           />
                         </Group>
@@ -106,4 +118,4 @@ export const DraftRounds = ({
       </Accordion>
     </Card>
   );
-}; 
+};

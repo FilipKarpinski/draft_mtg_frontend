@@ -1,4 +1,4 @@
-import axios, { type AxiosInstance, type AxiosRequestConfig } from "axios";
+import axios, { type AxiosInstance, type AxiosRequestConfig } from 'axios';
 
 // Define the configuration for our API instance
 const apiConfig: AxiosRequestConfig = {

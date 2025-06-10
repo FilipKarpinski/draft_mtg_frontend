@@ -1,16 +1,16 @@
 import { useEffect, useState, useContext, type JSX } from 'react';
 import { useLocation } from 'react-router-dom';
-import { 
-  Card, 
-  Text, 
-  Title, 
-  Container, 
-  Group, 
-  Loader, 
-  Alert, 
-  Stack, 
+import {
+  Card,
+  Text,
+  Title,
+  Container,
+  Group,
+  Loader,
+  Alert,
+  Stack,
   ThemeIcon,
-  Button
+  Button,
 } from '@mantine/core';
 import { IconAlertCircle, IconUser, IconPlus } from '@tabler/icons-react';
 import { api } from '../../auth/api';
@@ -106,14 +106,9 @@ export const PlayersPage = (): JSX.Element => {
   return (
     <Container size="md" mt={40}>
       <Group justify="space-between" align="center" mb="xl">
-        <Title order={1}>
-          Players
-        </Title>
+        <Title order={1}>Players</Title>
         {isAuthenticated && (
-          <Button
-            leftSection={<IconPlus size={16} />}
-            onClick={handleAddPlayerClick}
-          >
+          <Button leftSection={<IconPlus size={16} />} onClick={handleAddPlayerClick}>
             Add Player
           </Button>
         )}
@@ -135,7 +130,7 @@ export const PlayersPage = (): JSX.Element => {
                   cursor: 'pointer',
                   padding: '12px',
                   borderRadius: '6px',
-                  transition: 'background-color 0.2s ease'
+                  transition: 'background-color 0.2s ease',
                 }}
                 onClick={() => handlePlayerClick(player.id)}
                 onMouseEnter={(e) => {
@@ -160,4 +155,4 @@ export const PlayersPage = (): JSX.Element => {
       )}
     </Container>
   );
-}; 
+};

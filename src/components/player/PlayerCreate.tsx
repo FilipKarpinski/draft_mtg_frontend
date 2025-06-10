@@ -1,14 +1,5 @@
 import { useState, type JSX } from 'react';
-import { 
-  Card, 
-  Title, 
-  Container, 
-  Group, 
-  Button,
-  TextInput,
-  Alert,
-  Stack
-} from '@mantine/core';
+import { Card, Title, Container, Group, Button, TextInput, Alert, Stack } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconAlertCircle, IconUser, IconArrowLeft, IconCheck } from '@tabler/icons-react';
 import { authApi } from '../../auth/api';
@@ -44,17 +35,16 @@ export const PlayerCreate = ({ onBack, onPlayerCreated }: PlayerCreateProps): JS
 
     try {
       await authApi.post<Player>('/players', {
-        name: values.name.trim()
+        name: values.name.trim(),
       });
-      
+
       setSuccess(true);
       form.reset();
-      
+
       // Show success message briefly, then call onPlayerCreated
       setTimeout(() => {
         onPlayerCreated();
       }, 1500);
-      
     } catch (err: any) {
       console.error('Error creating player:', err);
       setError(err.response?.data?.detail || 'Failed to create player');
@@ -66,11 +56,7 @@ export const PlayerCreate = ({ onBack, onPlayerCreated }: PlayerCreateProps): JS
   return (
     <Container size="md" mt={40}>
       <Group mb="xl">
-        <Button 
-          variant="subtle" 
-          leftSection={<IconArrowLeft size={16} />}
-          onClick={onBack}
-        >
+        <Button variant="subtle" leftSection={<IconArrowLeft size={16} />} onClick={onBack}>
           Back to Players
         </Button>
       </Group>
@@ -109,15 +95,11 @@ export const PlayerCreate = ({ onBack, onPlayerCreated }: PlayerCreateProps): JS
               />
 
               <Group justify="flex-end" mt="md">
-                <Button 
-                  variant="outline" 
-                  onClick={onBack}
-                  disabled={isLoading || success}
-                >
+                <Button variant="outline" onClick={onBack} disabled={isLoading || success}>
                   Cancel
                 </Button>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   loading={isLoading}
                   disabled={success}
                   leftSection={<IconUser size={16} />}
@@ -131,4 +113,4 @@ export const PlayerCreate = ({ onBack, onPlayerCreated }: PlayerCreateProps): JS
       </Card>
     </Container>
   );
-}; 
+};

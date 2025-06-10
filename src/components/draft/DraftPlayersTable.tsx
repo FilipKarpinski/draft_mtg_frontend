@@ -26,11 +26,10 @@ export const DraftPlayersTable = ({
   removeDeckColor,
   calculateResults,
 }: DraftPlayersTableProps): JSX.Element => {
-  
   const handleCalculateResults = async () => {
     try {
       await calculateResults();
-      
+
       // Trigger confetti animation after successful calculation
       confetti({
         particleCount: 100,
@@ -38,26 +37,25 @@ export const DraftPlayersTable = ({
         origin: { y: 0.6 },
         colors: ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FECA57'],
       });
-      
+
       // Additional confetti burst for extra celebration
       setTimeout(() => {
         confetti({
           particleCount: 50,
           angle: 60,
           spread: 55,
-          origin: { x: 0 }
+          origin: { x: 0 },
         });
       }, 250);
-      
+
       setTimeout(() => {
         confetti({
           particleCount: 50,
           angle: 120,
           spread: 55,
-          origin: { x: 1 }
+          origin: { x: 1 },
         });
       }, 400);
-      
     } catch (error) {
       console.error('Error calculating results:', error);
       // Don't show confetti if there was an error
@@ -71,7 +69,7 @@ export const DraftPlayersTable = ({
           <IconUsers size={24} stroke={1.5} />
           <Title order={3}>Players</Title>
         </Group>
-        
+
         {!hasUnfinishedMatches && isAuthenticated && (
           <Button
             onClick={handleCalculateResults}
@@ -84,7 +82,7 @@ export const DraftPlayersTable = ({
           </Button>
         )}
       </Group>
-      
+
       <Table>
         <Table.Thead>
           <Table.Tr>
@@ -98,8 +96,8 @@ export const DraftPlayersTable = ({
           {draft.draft_players
             .sort((a, b) => {
               // Check if any player has null points
-              const hasNullPoints = draft.draft_players.some(player => player.points === null);
-              
+              const hasNullPoints = draft.draft_players.some((player) => player.points === null);
+
               if (hasNullPoints) {
                 // Sort by order if any player has null points
                 return a.order - b.order;
@@ -117,8 +115,8 @@ export const DraftPlayersTable = ({
                   <Group gap="xs" align="center">
                     {/* Add Color Dropdown */}
                     <Select
-                      data={DECK_COLOR_OPTIONS.filter(option => 
-                        !draftPlayer.deck_colors.includes(option.value)
+                      data={DECK_COLOR_OPTIONS.filter(
+                        (option) => !draftPlayer.deck_colors.includes(option.value)
                       )}
                       value=""
                       onChange={(value) => value && addDeckColor(draftPlayer.player.id, value)}
@@ -131,7 +129,7 @@ export const DraftPlayersTable = ({
                       style={{ flexShrink: 0 }}
                     />
                     {/* Selected Colors */}
-                    <Group gap={4} style={{ width: '350px' }}>
+                    <Group gap={4}>
                       {draftPlayer.deck_colors.map((color) => (
                         <Badge
                           key={color}
@@ -142,9 +140,13 @@ export const DraftPlayersTable = ({
                             color: color === 'white' ? COLOR_MAP.white.textColor : 'white',
                             border: (COLOR_MAP[color as keyof typeof COLOR_MAP] as any)?.border,
                             cursor: 'pointer',
-                            fontWeight: 600
+                            fontWeight: 600,
                           }}
-                          onClick={() => !updatingPlayers.has(draftPlayer.player.id) && isAuthenticated && removeDeckColor(draftPlayer.player.id, color)}
+                          onClick={() =>
+                            !updatingPlayers.has(draftPlayer.player.id) &&
+                            isAuthenticated &&
+                            removeDeckColor(draftPlayer.player.id, color)
+                          }
                           rightSection={
                             !updatingPlayers.has(draftPlayer.player.id) && (
                               <ActionIcon
@@ -162,15 +164,17 @@ export const DraftPlayersTable = ({
                         </Badge>
                       ))}
                       {draftPlayer.deck_colors.length === 0 && (
-                        <Text c="dimmed" size="sm">No colors</Text>
+                        <Text c="dimmed" size="sm">
+                          No colors
+                        </Text>
                       )}
                     </Group>
                   </Group>
                 </Table.Td>
                 <Table.Td>
-                  <Badge variant="light" color="blue">
+                  <Text fw={600} size="sm" c="blue">
                     {draftPlayer.points} pts
-                  </Badge>
+                  </Text>
                 </Table.Td>
                 <Table.Td>
                   {draftPlayer.final_place ? (
@@ -178,7 +182,9 @@ export const DraftPlayersTable = ({
                       #{draftPlayer.final_place}
                     </Badge>
                   ) : (
-                    <Text c="dimmed" size="sm">TBD</Text>
+                    <Text c="dimmed" size="sm">
+                      TBD
+                    </Text>
                   )}
                 </Table.Td>
               </Table.Tr>
@@ -187,4 +193,4 @@ export const DraftPlayersTable = ({
       </Table>
     </Card>
   );
-}; 
+};

@@ -1,16 +1,16 @@
 import { useEffect, useState, type JSX } from 'react';
-import { 
-  Card, 
-  Text, 
-  Title, 
-  Container, 
-  Group, 
-  Loader, 
-  Alert, 
-  Stack, 
+import {
+  Card,
+  Text,
+  Title,
+  Container,
+  Group,
+  Loader,
+  Alert,
+  Stack,
   Button,
   ThemeIcon,
-  Badge
+  Badge,
 } from '@mantine/core';
 import { IconAlertCircle, IconUser, IconArrowLeft } from '@tabler/icons-react';
 import { api } from '../../auth/api';
@@ -59,15 +59,15 @@ export const PlayerDetail = ({ playerId, onBack }: PlayerDetailProps): JSX.Eleme
   if (error) {
     return (
       <Container size="md" mt={40}>
-        <Alert icon={<IconAlertCircle size={16} />} color="red" title="Error loading player details">
+        <Alert
+          icon={<IconAlertCircle size={16} />}
+          color="red"
+          title="Error loading player details"
+        >
           {error}
         </Alert>
         <Group justify="flex-start" mt="md">
-          <Button 
-            variant="outline" 
-            leftSection={<IconArrowLeft size={16} />}
-            onClick={onBack}
-          >
+          <Button variant="outline" leftSection={<IconArrowLeft size={16} />} onClick={onBack}>
             Back to Players
           </Button>
         </Group>
@@ -78,11 +78,7 @@ export const PlayerDetail = ({ playerId, onBack }: PlayerDetailProps): JSX.Eleme
   return (
     <Container size="md" mt={40}>
       <Group mb="xl">
-        <Button 
-          variant="subtle" 
-          leftSection={<IconArrowLeft size={16} />}
-          onClick={onBack}
-        >
+        <Button variant="subtle" leftSection={<IconArrowLeft size={16} />} onClick={onBack}>
           Back to Players
         </Button>
       </Group>
@@ -98,7 +94,9 @@ export const PlayerDetail = ({ playerId, onBack }: PlayerDetailProps): JSX.Eleme
               <IconUser size={30} />
             </ThemeIcon>
             <div>
-              <Text fw={600} size="xl">{player.name}</Text>
+              <Text fw={600} size="xl">
+                {player.name}
+              </Text>
               <Badge variant="light" color="blue" size="sm" mt="xs">
                 Player Profile
               </Badge>
@@ -108,4 +106,4 @@ export const PlayerDetail = ({ playerId, onBack }: PlayerDetailProps): JSX.Eleme
       )}
     </Container>
   );
-}; 
+};

@@ -6,11 +6,11 @@ import { AuthContext } from '../../auth/AuthContext';
 export const LoginPage = (): JSX.Element => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, isLoading } = useContext(AuthContext);
-  
+  const { login, isLoading, error } = useContext(AuthContext);
+
   const handleLogin = async (values: { email: string; password: string }) => {
     const success = await login({ email: values.email, password: values.password });
-    
+
     // Navigate only if login was successful
     if (success) {
       const from = (location.state as any)?.from?.pathname || '/drafts';
@@ -18,6 +18,6 @@ export const LoginPage = (): JSX.Element => {
     }
     // If not successful, the error will be displayed in the form
   };
-  
-  return <LoginForm onLogin={handleLogin} isLoading={isLoading} />;
-}; 
+
+  return <LoginForm onLogin={handleLogin} isLoading={isLoading} error={error} />;
+};

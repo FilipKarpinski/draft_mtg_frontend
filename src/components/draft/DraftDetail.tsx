@@ -1,14 +1,5 @@
 import { useEffect, useState, type JSX } from 'react';
-import { 
-  Container, 
-  Group, 
-  Loader, 
-  Alert, 
-  Stack, 
-  Button,
-  Title,
-  Text
-} from '@mantine/core';
+import { Container, Group, Loader, Alert, Stack, Button, Title, Text } from '@mantine/core';
 import { IconAlertCircle, IconArrowLeft } from '@tabler/icons-react';
 import { authApi } from '../../auth/api';
 import { useContext } from 'react';
@@ -65,30 +56,29 @@ export const DraftDetail = ({ draftId, draftData, onBack }: DraftDetailProps): J
       return;
     }
 
-    setUpdatingMatches(prev => new Set(prev).add(matchId));
-    
+    setUpdatingMatches((prev) => new Set(prev).add(matchId));
+
     try {
       await authApi.put<void>(`/matches/${matchId}`, { score });
-      
+
       // Update local state
-      setDraft(prev => {
+      setDraft((prev) => {
         if (!prev) return prev;
-        
-        const updatedRounds = prev.rounds.map(round => ({
+
+        const updatedRounds = prev.rounds.map((round) => ({
           ...round,
-          matches: round.matches.map(match => 
+          matches: round.matches.map((match) =>
             match.id === matchId ? { ...match, score } : match
-          )
+          ),
         }));
-        
+
         return { ...prev, rounds: updatedRounds };
       });
-      
     } catch (err: any) {
       console.error('Error updating match score:', err);
       setError(`Failed to update match score: ${err.response?.data?.detail || err.message}`);
     } finally {
-      setUpdatingMatches(prev => {
+      setUpdatingMatches((prev) => {
         const updated = new Set(prev);
         updated.delete(matchId);
         return updated;
@@ -102,31 +92,30 @@ export const DraftDetail = ({ draftId, draftData, onBack }: DraftDetailProps): J
       return;
     }
 
-    setUpdatingPlayers(prev => new Set(prev).add(playerId));
-    
+    setUpdatingPlayers((prev) => new Set(prev).add(playerId));
+
     try {
-      await authApi.patch<void>(`/draft-players/${draftId}/${playerId}`, { 
-        deck_colors: deckColors 
+      await authApi.patch<void>(`/draft-players/${draftId}/${playerId}`, {
+        deck_colors: deckColors,
       });
-      
+
       // Update local state
-      setDraft(prev => {
+      setDraft((prev) => {
         if (!prev) return prev;
-        
-        const updatedDraftPlayers = prev.draft_players.map(draftPlayer => 
-          draftPlayer.player.id === playerId 
+
+        const updatedDraftPlayers = prev.draft_players.map((draftPlayer) =>
+          draftPlayer.player.id === playerId
             ? { ...draftPlayer, deck_colors: deckColors }
             : draftPlayer
         );
-        
+
         return { ...prev, draft_players: updatedDraftPlayers };
       });
-      
     } catch (err: any) {
       console.error('Error updating deck colors:', err);
       setError(`Failed to update deck colors: ${err.response?.data?.detail || err.message}`);
     } finally {
-      setUpdatingPlayers(prev => {
+      setUpdatingPlayers((prev) => {
         const updated = new Set(prev);
         updated.delete(playerId);
         return updated;
@@ -136,7 +125,7 @@ export const DraftDetail = ({ draftId, draftData, onBack }: DraftDetailProps): J
 
   const getWinningPlayerColors = (match: Match, score: string | null): string[] => {
     if (!score || score === '0-0') return [];
-    
+
     let winningPlayerId: number;
     if (score === '2-0' || score === '2-1') {
       winningPlayerId = match.player_1_id;
@@ -145,24 +134,24 @@ export const DraftDetail = ({ draftId, draftData, onBack }: DraftDetailProps): J
     } else {
       return [];
     }
-    
-    const winningPlayer = draft?.draft_players.find(dp => dp.player.id === winningPlayerId);
+
+    const winningPlayer = draft?.draft_players.find((dp) => dp.player.id === winningPlayerId);
     return winningPlayer?.deck_colors || [];
   };
 
   const addDeckColor = async (playerId: number, newColor: string) => {
-    const currentPlayer = draft?.draft_players.find(p => p.player.id === playerId);
+    const currentPlayer = draft?.draft_players.find((p) => p.player.id === playerId);
     if (!currentPlayer || currentPlayer.deck_colors.includes(newColor)) return;
-    
+
     const updatedColors = [...currentPlayer.deck_colors, newColor];
     await updateDeckColors(playerId, updatedColors);
   };
 
   const removeDeckColor = async (playerId: number, colorToRemove: string) => {
-    const currentPlayer = draft?.draft_players.find(p => p.player.id === playerId);
+    const currentPlayer = draft?.draft_players.find((p) => p.player.id === playerId);
     if (!currentPlayer) return;
-    
-    const updatedColors = currentPlayer.deck_colors.filter(color => color !== colorToRemove);
+
+    const updatedColors = currentPlayer.deck_colors.filter((color) => color !== colorToRemove);
     await updateDeckColors(playerId, updatedColors);
   };
 
@@ -174,14 +163,13 @@ export const DraftDetail = ({ draftId, draftData, onBack }: DraftDetailProps): J
 
     setCalculatingResults(true);
     setError(null);
-    
+
     try {
       await authApi.post<void>(`/drafts/${draftId}/results`);
-      
+
       // Refresh draft data after calculation
       const response = await authApi.get<DraftDetailData>(`/drafts/${draftId}`);
       setDraft(response.data);
-      
     } catch (err: any) {
       console.error('Error calculating results:', err);
       setError(`Failed to calculate results: ${err.response?.data?.detail || err.message}`);
@@ -192,8 +180,8 @@ export const DraftDetail = ({ draftId, draftData, onBack }: DraftDetailProps): J
 
   const hasUnfinishedMatches = (): boolean => {
     if (!draft) return false;
-    return draft.rounds.some(round => 
-      round.matches.some(match => !match.score || match.score === '0-0')
+    return draft.rounds.some((round) =>
+      round.matches.some((match) => !match.score || match.score === '0-0')
     );
   };
 
@@ -215,11 +203,7 @@ export const DraftDetail = ({ draftId, draftData, onBack }: DraftDetailProps): J
           {error}
         </Alert>
         <Group justify="flex-start" mt="md">
-          <Button 
-            variant="outline" 
-            leftSection={<IconArrowLeft size={16} />}
-            onClick={onBack}
-          >
+          <Button variant="outline" leftSection={<IconArrowLeft size={16} />} onClick={onBack}>
             Back to Drafts
           </Button>
         </Group>
@@ -230,11 +214,7 @@ export const DraftDetail = ({ draftId, draftData, onBack }: DraftDetailProps): J
   return (
     <Container size="lg" mt={40}>
       <Group mb="xl">
-        <Button 
-          variant="subtle" 
-          leftSection={<IconArrowLeft size={16} />}
-          onClick={onBack}
-        >
+        <Button variant="subtle" leftSection={<IconArrowLeft size={16} />} onClick={onBack}>
           Back to Drafts
         </Button>
       </Group>
@@ -246,7 +226,7 @@ export const DraftDetail = ({ draftId, draftData, onBack }: DraftDetailProps): J
       {draft && (
         <Stack gap="lg">
           <DraftOverview draft={draft} />
-          
+
           <DraftPlayersTable
             draft={draft}
             isAuthenticated={isAuthenticated}
@@ -269,4 +249,4 @@ export const DraftDetail = ({ draftId, draftData, onBack }: DraftDetailProps): J
       )}
     </Container>
   );
-}; 
+};

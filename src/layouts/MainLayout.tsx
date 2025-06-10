@@ -1,6 +1,15 @@
 import { AppShell, Burger, Group, NavLink, Button, Menu, Avatar } from '@mantine/core';
 import { useState, type JSX, useContext } from 'react';
-import { IconFileText, IconUsers, IconLogin, IconLogout, IconUserCircle, IconUserPlus, IconChartBar, IconLock } from '@tabler/icons-react';
+import {
+  IconFileText,
+  IconUsers,
+  IconLogin,
+  IconLogout,
+  IconUserCircle,
+  IconUserPlus,
+  IconChartBar,
+  IconLock,
+} from '@tabler/icons-react';
 import { Routes, Route, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { LoginPage } from '../components/account/LoginPage';
 import { RegisterPage } from '../components/account/RegisterPage';
@@ -15,7 +24,7 @@ import { ChangePasswordPage } from '../components/account/ChangePasswordPage';
 
 export function MainLayout(): JSX.Element {
   useAxiosInterceptors();
-  
+
   const [opened, setOpened] = useState<boolean>(false);
   const location = useLocation();
   const { isAuthenticated, logout } = useContext(AuthContext);
@@ -32,18 +41,13 @@ export function MainLayout(): JSX.Element {
       navbar={{
         width: 300,
         breakpoint: 'sm',
-        collapsed: { mobile: !opened }
+        collapsed: { mobile: !opened },
       }}
       padding="md"
     >
       <AppShell.Header>
         <Group h="100%" px="md" justify="space-between">
-          <Burger
-            opened={opened}
-            onClick={() => setOpened((o) => !o)}
-            size="sm"
-            hiddenFrom="sm"
-          />
+          <Burger opened={opened} onClick={() => setOpened((o) => !o)} size="sm" hiddenFrom="sm" />
           <h3>MTG Draft App</h3>
 
           {isAuthenticated ? (
@@ -66,18 +70,15 @@ export function MainLayout(): JSX.Element {
                 >
                   Change Password
                 </Menu.Item>
-                <Menu.Item
-                  leftSection={<IconLogout size={14} />}
-                  onClick={handleLogout}
-                >
+                <Menu.Item leftSection={<IconLogout size={14} />} onClick={handleLogout}>
                   Log Out
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>
           ) : (
-            <Group gap="xs">
+            <Group gap="xs" visibleFrom="sm">
               <Button
-                variant={location.pathname === '/login' ? "filled" : "subtle"}
+                variant={location.pathname === '/login' ? 'filled' : 'subtle'}
                 leftSection={<IconLogin size={16} />}
                 component={Link}
                 to="/login"
@@ -85,7 +86,7 @@ export function MainLayout(): JSX.Element {
                 Log In
               </Button>
               <Button
-                variant={location.pathname === '/register' ? "filled" : "subtle"}
+                variant={location.pathname === '/register' ? 'filled' : 'subtle'}
                 leftSection={<IconUserPlus size={16} />}
                 component={Link}
                 to="/register"
@@ -98,6 +99,32 @@ export function MainLayout(): JSX.Element {
       </AppShell.Header>
 
       <AppShell.Navbar p="md">
+        {!isAuthenticated && (
+          <>
+            <NavLink
+              label="Log In"
+              leftSection={<IconLogin size={16} />}
+              component={Link}
+              to="/login"
+              active={location.pathname === '/login'}
+              variant="filled"
+              color="blue"
+              hiddenFrom="sm"
+              onClick={() => setOpened(false)}
+            />
+            <NavLink
+              label="Register"
+              leftSection={<IconUserPlus size={16} />}
+              component={Link}
+              to="/register"
+              active={location.pathname === '/register'}
+              variant="filled"
+              color="blue"
+              hiddenFrom="sm"
+              onClick={() => setOpened(false)}
+            />
+          </>
+        )}
         <NavLink
           label="Drafts"
           leftSection={<IconFileText size={16} />}
@@ -106,6 +133,7 @@ export function MainLayout(): JSX.Element {
           active={location.pathname === '/drafts'}
           variant="filled"
           color="blue"
+          onClick={() => setOpened(false)}
         />
         <NavLink
           label="Players"
@@ -115,6 +143,7 @@ export function MainLayout(): JSX.Element {
           active={location.pathname === '/players'}
           variant="filled"
           color="blue"
+          onClick={() => setOpened(false)}
         />
         <NavLink
           label="Stats"
@@ -124,6 +153,7 @@ export function MainLayout(): JSX.Element {
           active={location.pathname === '/stats'}
           variant="filled"
           color="blue"
+          onClick={() => setOpened(false)}
         />
       </AppShell.Navbar>
 
@@ -132,26 +162,11 @@ export function MainLayout(): JSX.Element {
           <Route path="/" element={<Navigate to="/drafts" />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          
+
           {/* Protected routes */}
-          <Route
-            path="/drafts"
-            element={
-                <DraftsPage />
-            }
-          />
-          <Route
-            path="/players"
-            element={
-                <PlayersPage />
-            }
-          />
-          <Route
-            path="/stats"
-            element={
-                <StatsPage />
-            }
-          />
+          <Route path="/drafts" element={<DraftsPage />} />
+          <Route path="/players" element={<PlayersPage />} />
+          <Route path="/stats" element={<StatsPage />} />
           <Route
             path="/account"
             element={
@@ -168,11 +183,11 @@ export function MainLayout(): JSX.Element {
               </ProtectedRoute>
             }
           />
-          
+
           {/* Catch-all route for any undefined routes */}
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       </AppShell.Main>
     </AppShell>
   );
-} 
+}

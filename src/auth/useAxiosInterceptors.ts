@@ -1,7 +1,7 @@
-import { useContext, useEffect } from "react";
-import { type AxiosResponse, type InternalAxiosRequestConfig } from "axios";
-import { authApi } from "./api";
-import { AuthContext } from "./AuthContext";
+import { useContext, useEffect } from 'react';
+import { type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
+import { authApi } from './api';
+import { AuthContext } from './AuthContext';
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
@@ -25,17 +25,24 @@ const useAxiosInterceptors = (): void => {
       (response: AxiosResponse): AxiosResponse => response,
       async (error: any) => {
         const originalRequest = error.config as CustomAxiosRequestConfig;
-        
+
         // Check if this is a failed refresh token request
         const isRefreshRequest = originalRequest.url?.includes('/refresh');
+        // Check if this is a login request
+        const isLoginRequest = originalRequest.url?.includes('/login');
 
-        if (error.response?.status === 401 && !originalRequest._retry && !isRefreshRequest) {
+        if (
+          error.response?.status === 401 &&
+          !originalRequest._retry &&
+          !isRefreshRequest &&
+          !isLoginRequest
+        ) {
           originalRequest._retry = true;
 
           try {
             const newToken = await refreshAccessToken();
-            authApi.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
-            originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+            authApi.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+            originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
             return authApi(originalRequest);
           } catch (refreshError) {
             await logout();

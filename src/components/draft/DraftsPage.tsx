@@ -1,17 +1,17 @@
 import { useEffect, useState, useContext, type JSX } from 'react';
 import { useLocation } from 'react-router-dom';
-import { 
-  Card, 
-  Text, 
-  Title, 
-  Container, 
-  Group, 
-  Loader, 
-  Alert, 
-  Stack, 
+import {
+  Card,
+  Text,
+  Title,
+  Container,
+  Group,
+  Loader,
+  Alert,
+  Stack,
   ThemeIcon,
   Button,
-  Badge
+  Badge,
 } from '@mantine/core';
 import { IconAlertCircle, IconFileText, IconPlus } from '@tabler/icons-react';
 import { authApi } from '../../auth/api';
@@ -91,7 +91,13 @@ export const DraftsPage = (): JSX.Element => {
 
   // Show draft detail view if a draft is selected
   if (selectedDraftId) {
-    return <DraftDetail draftId={selectedDraftId} draftData={selectedDraftData} onBack={handleBackToList} />;
+    return (
+      <DraftDetail
+        draftId={selectedDraftId}
+        draftData={selectedDraftData}
+        onBack={handleBackToList}
+      />
+    );
   }
 
   if (isLoading) {
@@ -118,14 +124,9 @@ export const DraftsPage = (): JSX.Element => {
   return (
     <Container size="md" mt={40}>
       <Group justify="space-between" align="center" mb="xl">
-        <Title order={1}>
-          Drafts
-        </Title>
+        <Title order={1}>Drafts</Title>
         {isAuthenticated && (
-          <Button
-            leftSection={<IconPlus size={16} />}
-            onClick={handleAddDraftClick}
-          >
+          <Button leftSection={<IconPlus size={16} />} onClick={handleAddDraftClick}>
             Add Draft
           </Button>
         )}
@@ -147,7 +148,7 @@ export const DraftsPage = (): JSX.Element => {
                   cursor: 'pointer',
                   padding: '12px',
                   borderRadius: '6px',
-                  transition: 'background-color 0.2s ease'
+                  transition: 'background-color 0.2s ease',
                 }}
                 onClick={() => handleDraftClick(draft.id)}
                 onMouseEnter={(e) => {
@@ -177,4 +178,4 @@ export const DraftsPage = (): JSX.Element => {
       )}
     </Container>
   );
-}; 
+};

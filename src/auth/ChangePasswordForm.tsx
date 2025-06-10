@@ -24,8 +24,10 @@ export function ChangePasswordForm({ onSuccess }: ChangePasswordFormProps) {
       new_password: '',
     },
     validate: {
-      current_password: (value) => (value.length >= 6 ? null : 'Password should be at least 6 characters'),
-      new_password: (value) => (value.length >= 6 ? null : 'Password should be at least 6 characters'),
+      current_password: (value) =>
+        value.length >= 6 ? null : 'Password should be at least 6 characters',
+      new_password: (value) =>
+        value.length >= 6 ? null : 'Password should be at least 6 characters',
     },
   });
 
@@ -33,14 +35,14 @@ export function ChangePasswordForm({ onSuccess }: ChangePasswordFormProps) {
     setIsLoading(true);
     setError(null);
     setSuccess(false);
-    
+
     try {
       await authApi.post<void>('/change-password', values);
-      
+
       // Password change successful
       setSuccess(true);
       form.reset();
-      
+
       if (onSuccess) {
         onSuccess();
       }
@@ -98,4 +100,4 @@ export function ChangePasswordForm({ onSuccess }: ChangePasswordFormProps) {
       </Paper>
     </Container>
   );
-} 
+}
