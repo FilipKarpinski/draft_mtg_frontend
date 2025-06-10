@@ -26,6 +26,11 @@ export const DraftPlayersTable = ({
   removeDeckColor,
   calculateResults,
 }: DraftPlayersTableProps): JSX.Element => {
+  const getColorAbbreviation = (color: string): string => {
+    if (color === 'blue') return 'U';
+    return color.charAt(0).toUpperCase();
+  };
+
   const handleCalculateResults = async () => {
     try {
       await calculateResults();
@@ -160,7 +165,7 @@ export const DraftPlayersTable = ({
                             )
                           }
                         >
-                          {color.charAt(0).toUpperCase()}
+                          {getColorAbbreviation(color)}
                         </Badge>
                       ))}
                       {draftPlayer.deck_colors.length === 0 && (
@@ -172,15 +177,37 @@ export const DraftPlayersTable = ({
                   </Group>
                 </Table.Td>
                 <Table.Td>
-                  <Text fw={600} size="sm" c="blue">
+                  <Text
+                    fw={600}
+                    size="sm"
+                    c="white"
+                    style={{
+                      backgroundColor: 'var(--mantine-color-blue-6)',
+                      padding: '4px 8px',
+                      borderRadius: '12px',
+                      display: 'inline-block',
+                      fontSize: '0.75rem',
+                    }}
+                  >
                     {draftPlayer.points} pts
                   </Text>
                 </Table.Td>
                 <Table.Td>
                   {draftPlayer.final_place ? (
-                    <Badge variant="light" color="yellow">
+                    <Text
+                      fw={600}
+                      size="sm"
+                      c="white"
+                      style={{
+                        backgroundColor: 'var(--mantine-color-yellow-9)',
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        display: 'inline-block',
+                        fontSize: '0.75rem',
+                      }}
+                    >
                       #{draftPlayer.final_place}
-                    </Badge>
+                    </Text>
                   ) : (
                     <Text c="dimmed" size="sm">
                       TBD

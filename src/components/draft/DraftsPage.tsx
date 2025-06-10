@@ -96,6 +96,7 @@ export const DraftsPage = (): JSX.Element => {
         draftId={selectedDraftId}
         draftData={selectedDraftData}
         onBack={handleBackToList}
+        onDraftDeleted={fetchDrafts}
       />
     );
   }

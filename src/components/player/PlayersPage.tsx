@@ -13,7 +13,7 @@ import {
   Button,
 } from '@mantine/core';
 import { IconAlertCircle, IconUser, IconPlus } from '@tabler/icons-react';
-import { api } from '../../auth/api';
+import { authApi } from '../../auth/api';
 import { PlayerDetail } from './PlayerDetail';
 import { PlayerCreate } from './PlayerCreate';
 import { AuthContext } from '../../auth/AuthContext';
@@ -33,7 +33,7 @@ export const PlayersPage = (): JSX.Element => {
     setError(null);
 
     try {
-      const response = await api.get<Player[]>('/players');
+      const response = await authApi.get<Player[]>('/players');
       setPlayers(response.data);
     } catch (err: any) {
       console.error('Error fetching players:', err);
@@ -79,7 +79,13 @@ export const PlayersPage = (): JSX.Element => {
 
   // Show player detail view if a player is selected
   if (selectedPlayerId) {
-    return <PlayerDetail playerId={selectedPlayerId} onBack={handleBackToList} />;
+    return (
+      <PlayerDetail
+        playerId={selectedPlayerId}
+        onBack={handleBackToList}
+        onPlayerDeleted={fetchPlayers}
+      />
+    );
   }
 
   if (isLoading) {

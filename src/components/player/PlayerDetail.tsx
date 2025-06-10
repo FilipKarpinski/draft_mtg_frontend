@@ -13,24 +13,36 @@ import {
   Badge,
   SimpleGrid,
 } from '@mantine/core';
-import { IconAlertCircle, IconUser, IconArrowLeft, IconTrophy } from '@tabler/icons-react';
-import { api } from '../../auth/api';
+import {
+  IconAlertCircle,
+  IconUser,
+  IconArrowLeft,
+  IconTrophy,
+  IconTrash,
+} from '@tabler/icons-react';
+import { authApi } from '../../auth/api';
 import type { Player } from '../../types';
 
 interface PlayerDetailProps {
   playerId: number;
   onBack: () => void;
+  onPlayerDeleted?: () => void;
 }
 
 interface PlayerPlacements {
   [place: string]: number;
 }
 
-export const PlayerDetail = ({ playerId, onBack }: PlayerDetailProps): JSX.Element => {
+export const PlayerDetail = ({
+  playerId,
+  onBack,
+  onPlayerDeleted,
+}: PlayerDetailProps): JSX.Element => {
   const [player, setPlayer] = useState<Player | null>(null);
   const [placements, setPlacements] = useState<PlayerPlacements | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLoadingPlacements, setIsLoadingPlacements] = useState<boolean>(true);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [placementsError, setPlacementsError] = useState<string | null>(null);
 
@@ -40,7 +52,7 @@ export const PlayerDetail = ({ playerId, onBack }: PlayerDetailProps): JSX.Eleme
       setError(null);
 
       try {
-        const response = await api.get<Player>(`/players/${playerId}`);
+        const response = await authApi.get<Player>(`/players/${playerId}`);
         setPlayer(response.data);
       } catch (err: any) {
         console.error('Error fetching player detail:', err);
@@ -55,7 +67,7 @@ export const PlayerDetail = ({ playerId, onBack }: PlayerDetailProps): JSX.Eleme
       setPlacementsError(null);
 
       try {
-        const response = await api.get<PlayerPlacements>(`/players/${playerId}/placements`);
+        const response = await authApi.get<PlayerPlacements>(`/players/${playerId}/placements`);
         setPlacements(response.data);
       } catch (err: any) {
         console.error('Error fetching player lacements:', err);
@@ -68,6 +80,31 @@ export const PlayerDetail = ({ playerId, onBack }: PlayerDetailProps): JSX.Eleme
     fetchPlayerDetail();
     fetchPlayerPlacements();
   }, [playerId]);
+
+  const deletePlayer = async () => {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete player "${player?.name}"? This action cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    setIsDeleting(true);
+    setError(null);
+
+    try {
+      await authApi.delete(`/players/${playerId}`);
+      onPlayerDeleted?.();
+      onBack();
+    } catch (err: any) {
+      console.error('Error deleting player:', err);
+      const errorMessage = err.response?.data?.detail || 'Failed to delete player';
+      setError(errorMessage);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const renderPlacementsCards = () => {
     if (isLoadingPlacements) {
@@ -208,9 +245,19 @@ export const PlayerDetail = ({ playerId, onBack }: PlayerDetailProps): JSX.Eleme
         </Button>
       </Group>
 
-      <Title order={1} mb="xl">
-        Player Details
-      </Title>
+      <Group justify="space-between" align="center" mb="xl">
+        <Title order={1}>Player Details</Title>
+        <Button
+          color="red"
+          variant="outline"
+          leftSection={<IconTrash size={16} />}
+          onClick={deletePlayer}
+          loading={isDeleting}
+          disabled={isDeleting}
+        >
+          Delete Player
+        </Button>
+      </Group>
 
       <Stack gap="xl">
         {player && (

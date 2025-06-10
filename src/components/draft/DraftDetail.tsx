@@ -1,6 +1,6 @@
 import { useEffect, useState, type JSX } from 'react';
 import { Container, Group, Loader, Alert, Stack, Button, Title, Text } from '@mantine/core';
-import { IconAlertCircle, IconArrowLeft } from '@tabler/icons-react';
+import { IconAlertCircle, IconArrowLeft, IconTrash } from '@tabler/icons-react';
 import { authApi } from '../../auth/api';
 import { useContext } from 'react';
 import { AuthContext } from '../../auth/AuthContext';
@@ -13,11 +13,18 @@ interface DraftDetailProps {
   draftId: number;
   draftData?: any; // Optional pre-loaded draft data
   onBack: () => void;
+  onDraftDeleted?: () => void; // Optional callback to trigger when draft is deleted
 }
 
-export const DraftDetail = ({ draftId, draftData, onBack }: DraftDetailProps): JSX.Element => {
+export const DraftDetail = ({
+  draftId,
+  draftData,
+  onBack,
+  onDraftDeleted,
+}: DraftDetailProps): JSX.Element => {
   const [draft, setDraft] = useState<DraftDetailData | null>(draftData || null);
   const [isLoading, setIsLoading] = useState<boolean>(!draftData); // Don't load if we already have data
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [updatingMatches, setUpdatingMatches] = useState<Set<number>>(new Set());
   const [updatingPlayers, setUpdatingPlayers] = useState<Set<number>>(new Set());
@@ -185,6 +192,36 @@ export const DraftDetail = ({ draftId, draftData, onBack }: DraftDetailProps): J
     );
   };
 
+  const deleteDraft = async () => {
+    if (
+      !window.confirm(`Are you sure you want to delete this draft? This action cannot be undone.`)
+    ) {
+      return;
+    }
+
+    if (!isAuthenticated) {
+      setError('You must be logged in to delete drafts');
+      return;
+    }
+
+    setIsDeleting(true);
+    setError(null);
+
+    try {
+      await authApi.delete(`/drafts/${draftId}`);
+      // Notify parent that draft was deleted (to refresh the list)
+      onDraftDeleted?.();
+      // Navigate back to drafts list after successful deletion
+      onBack();
+    } catch (err: any) {
+      console.error('Error deleting draft:', err);
+      const errorMessage = err.response?.data?.detail || 'Failed to delete draft';
+      setError(errorMessage);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <Container size="md" mt={40}>
@@ -219,9 +256,21 @@ export const DraftDetail = ({ draftId, draftData, onBack }: DraftDetailProps): J
         </Button>
       </Group>
 
-      <Title order={1} mb="xl">
-        Draft Details
-      </Title>
+      <Group justify="space-between" align="center" mb="xl">
+        <Title order={1}>Draft Details</Title>
+        {isAuthenticated && (
+          <Button
+            color="red"
+            variant="outline"
+            leftSection={<IconTrash size={16} />}
+            onClick={deleteDraft}
+            loading={isDeleting}
+            disabled={isDeleting}
+          >
+            Delete Draft
+          </Button>
+        )}
+      </Group>
 
       {draft && (
         <Stack gap="lg">
