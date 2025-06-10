@@ -46,8 +46,9 @@ export function LoginForm({ onLogin, isLoading: externalLoading = false, error }
 
   // Check for inactive user error
   if (displayError && displayError.includes('Inactive user')) {
-    displayError =
-      'Your account is inactive. Please contact our local hero, the best of the best, the OG G, Karprix Gordon. He will activate your account, peasant. eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+    displayError = `Your account is inactive. 
+Please contact our local hero, the best of the best, the OG G, Karprix Gordon. 
+He will activate your account, peasant.`;
   }
   // If the error contains "Field required" messages, make them more specific
   else if (displayError && displayError.includes('Field required')) {

@@ -11,8 +11,9 @@ import {
   Button,
   ThemeIcon,
   Badge,
+  SimpleGrid,
 } from '@mantine/core';
-import { IconAlertCircle, IconUser, IconArrowLeft } from '@tabler/icons-react';
+import { IconAlertCircle, IconUser, IconArrowLeft, IconTrophy } from '@tabler/icons-react';
 import { api } from '../../auth/api';
 import type { Player } from '../../types';
 
@@ -21,10 +22,17 @@ interface PlayerDetailProps {
   onBack: () => void;
 }
 
+interface PlayerPlacements {
+  [place: string]: number;
+}
+
 export const PlayerDetail = ({ playerId, onBack }: PlayerDetailProps): JSX.Element => {
   const [player, setPlayer] = useState<Player | null>(null);
+  const [placements, setPlacements] = useState<PlayerPlacements | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoadingPlacements, setIsLoadingPlacements] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [placementsError, setPlacementsError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPlayerDetail = async () => {
@@ -42,8 +50,125 @@ export const PlayerDetail = ({ playerId, onBack }: PlayerDetailProps): JSX.Eleme
       }
     };
 
+    const fetchPlayerPlacements = async () => {
+      setIsLoadingPlacements(true);
+      setPlacementsError(null);
+
+      try {
+        const response = await api.get<PlayerPlacements>(`/players/${playerId}/placements`);
+        setPlacements(response.data);
+      } catch (err: any) {
+        console.error('Error fetching player lacements:', err);
+        setPlacementsError(err.response?.data?.detail || 'Failed to load player statistics');
+      } finally {
+        setIsLoadingPlacements(false);
+      }
+    };
+
     fetchPlayerDetail();
+    fetchPlayerPlacements();
   }, [playerId]);
+
+  const renderPlacementsCards = () => {
+    if (isLoadingPlacements) {
+      return (
+        <Card shadow="sm" p="lg" radius="md" withBorder>
+          <Group>
+            <IconTrophy size={24} />
+            <Title order={3}>Draft Statistics</Title>
+          </Group>
+          <Stack align="center" mt="md">
+            <Loader size="md" />
+            <Text size="sm" c="dimmed">
+              Loading statistics...
+            </Text>
+          </Stack>
+        </Card>
+      );
+    }
+
+    if (placementsError) {
+      return (
+        <Alert icon={<IconAlertCircle size={16} />} color="orange" title="Statistics Unavailable">
+          {placementsError}
+        </Alert>
+      );
+    }
+
+    if (!placements || Object.keys(placements).length === 0) {
+      return (
+        <Card shadow="sm" p="lg" radius="md" withBorder>
+          <Group mb="md">
+            <IconTrophy size={24} />
+            <Title order={3}>Draft Statistics</Title>
+          </Group>
+          <Text c="dimmed" ta="center">
+            No draft results yet
+          </Text>
+        </Card>
+      );
+    }
+
+    const getPlaceColor = (place: string) => {
+      switch (place) {
+        case '1':
+          return 'yellow';
+        case '2':
+          return 'gray';
+        case '3':
+          return 'orange';
+        default:
+          return 'blue';
+      }
+    };
+
+    const getPlaceSuffix = (place: string) => {
+      switch (place) {
+        case '1':
+          return 'st';
+        case '2':
+          return 'nd';
+        case '3':
+          return 'rd';
+        default:
+          return 'th';
+      }
+    };
+
+    return (
+      <Card shadow="sm" p="lg" radius="md" withBorder>
+        <Group mb="md">
+          <IconTrophy size={24} />
+          <Title order={3}>Draft Statistics</Title>
+        </Group>
+        <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing="md">
+          {Object.entries(placements)
+            .sort(([a], [b]) => parseInt(a) - parseInt(b))
+            .map(([place, count]) => (
+              <Card key={place} shadow="xs" p="md" radius="md" withBorder>
+                <Stack align="center" gap="xs">
+                  <Badge
+                    variant="filled"
+                    color={getPlaceColor(place)}
+                    size="lg"
+                    style={{ fontSize: '0.9rem' }}
+                  >
+                    {place}
+                    {getPlaceSuffix(place)}
+                  </Badge>
+                  <Text fw={600} size="xl">
+                    {count}
+                  </Text>
+                  <Text size="sm" c="dimmed">
+                    {count === 1 ? 'time' : 'times'}
+                  </Text>
+                </Stack>
+              </Card>
+            ))}
+        </SimpleGrid>
+      </Card>
+    );
+  };
 
   if (isLoading) {
     return (
@@ -87,23 +212,27 @@ export const PlayerDetail = ({ playerId, onBack }: PlayerDetailProps): JSX.Eleme
         Player Details
       </Title>
 
-      {player && (
-        <Card shadow="sm" p="lg" radius="md" withBorder>
-          <Group>
-            <ThemeIcon size={50} radius="xl" variant="light" color="blue">
-              <IconUser size={30} />
-            </ThemeIcon>
-            <div>
-              <Text fw={600} size="xl">
-                {player.name}
-              </Text>
-              <Badge variant="light" color="blue" size="sm" mt="xs">
-                Player Profile
-              </Badge>
-            </div>
-          </Group>
-        </Card>
-      )}
+      <Stack gap="xl">
+        {player && (
+          <Card shadow="sm" p="lg" radius="md" withBorder>
+            <Group>
+              <ThemeIcon size={50} radius="xl" variant="light" color="blue">
+                <IconUser size={30} />
+              </ThemeIcon>
+              <div>
+                <Text fw={600} size="xl">
+                  {player.name}
+                </Text>
+                <Badge variant="light" color="blue" size="sm" mt="xs">
+                  Player Profile
+                </Badge>
+              </div>
+            </Group>
+          </Card>
+        )}
+
+        {renderPlacementsCards()}
+      </Stack>
     </Container>
   );
 };
