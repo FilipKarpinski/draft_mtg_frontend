@@ -7,7 +7,7 @@ import { type JSX } from 'react';
 
 function App(): JSX.Element {
   return (
-    <MantineProvider>
+    <MantineProvider defaultColorScheme="dark">
       <BrowserRouter>
         <AuthProvider>
           <MainLayout />

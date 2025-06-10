@@ -21,6 +21,7 @@ import { PlayersPage } from '../components/player/PlayersPage';
 import { AuthContext } from '../auth/AuthContext';
 import useAxiosInterceptors from '../auth/useAxiosInterceptors';
 import { ChangePasswordPage } from '../components/account/ChangePasswordPage';
+import Aurora from './Aurora';
 
 export function MainLayout(): JSX.Element {
   useAxiosInterceptors();
@@ -158,6 +159,26 @@ export function MainLayout(): JSX.Element {
       </AppShell.Navbar>
 
       <AppShell.Main>
+        {/* Aurora background - positioned behind all content */}
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: -1,
+          }}
+        >
+          <Aurora
+            colorStops={['#3A29FF', '#FF94B4', '#FF3232']}
+            blend={0.8}
+            amplitude={1}
+            speed={0.5}
+          />
+        </div>
+
+        {/* Main content */}
         <Routes>
           <Route path="/" element={<Navigate to="/drafts" />} />
           <Route path="/login" element={<LoginPage />} />
