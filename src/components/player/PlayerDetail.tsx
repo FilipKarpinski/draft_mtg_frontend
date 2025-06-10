@@ -1,4 +1,4 @@
-import { useEffect, useState, type JSX } from 'react';
+import { useEffect, useState, useContext, type JSX } from 'react';
 import {
   Card,
   Text,
@@ -21,6 +21,7 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { authApi } from '../../auth/api';
+import { AuthContext } from '../../auth/AuthContext';
 import type { Player } from '../../types';
 
 interface PlayerDetailProps {
@@ -45,6 +46,7 @@ export const PlayerDetail = ({
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [placementsError, setPlacementsError] = useState<string | null>(null);
+  const { isAuthenticated } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchPlayerDetail = async () => {
@@ -247,16 +249,18 @@ export const PlayerDetail = ({
 
       <Group justify="space-between" align="center" mb="xl">
         <Title order={1}>Player Details</Title>
-        <Button
-          color="red"
-          variant="outline"
-          leftSection={<IconTrash size={16} />}
-          onClick={deletePlayer}
-          loading={isDeleting}
-          disabled={isDeleting}
-        >
-          Delete Player
-        </Button>
+        {isAuthenticated && (
+          <Button
+            color="red"
+            variant="outline"
+            leftSection={<IconTrash size={16} />}
+            onClick={deletePlayer}
+            loading={isDeleting}
+            disabled={isDeleting}
+          >
+            Delete Player
+          </Button>
+        )}
       </Group>
 
       <Stack gap="xl">
