@@ -19,7 +19,7 @@ export const COLOR_MAP = {
   blue: { color: 'blue', bg: '#4dabf7' },
   green: { color: 'green', bg: '#51cf66' },
   black: { color: 'dark', bg: '#495057' },
-  white: { color: 'gray', bg: '#f8f9fa', border: '2px solid #dee2e6', textColor: '#212529' },
+  white: { color: 'gray', bg: '#f8f9fa', textColor: '#212529' },
 };
 
 export const createColorGradient = (colors: string[]): string => {

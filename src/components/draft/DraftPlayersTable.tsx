@@ -125,12 +125,27 @@ export const DraftPlayersTable = ({
                       )}
                       value=""
                       onChange={(value) => value && addDeckColor(draftPlayer.player.id, value)}
-                      placeholder="+ Add"
+                      placeholder="+"
                       size="xs"
-                      w={80}
+                      w={60}
                       disabled={updatingPlayers.has(draftPlayer.player.id) || !isAuthenticated}
                       clearable={false}
                       searchable={false}
+                      styles={{
+                        input: {
+                          borderRadius: '8px',
+                          fontWeight: 600,
+                          fontSize: '0.75rem',
+                          textAlign: 'center',
+                          paddingRight: '8px',
+                        },
+                        dropdown: {
+                          borderRadius: '8px',
+                        },
+                        section: {
+                          display: 'none',
+                        },
+                      }}
                       style={{ flexShrink: 0 }}
                     />
                     {/* Selected Colors */}
@@ -146,33 +161,19 @@ export const DraftPlayersTable = ({
                             border: (COLOR_MAP[color as keyof typeof COLOR_MAP] as any)?.border,
                             cursor: 'pointer',
                             fontWeight: 600,
+                            width: '40px',
+                            textAlign: 'center',
+                            display: 'inline-block',
                           }}
                           onClick={() =>
                             !updatingPlayers.has(draftPlayer.player.id) &&
                             isAuthenticated &&
                             removeDeckColor(draftPlayer.player.id, color)
                           }
-                          rightSection={
-                            !updatingPlayers.has(draftPlayer.player.id) && (
-                              <ActionIcon
-                                size="xs"
-                                color={color === 'white' ? 'dark' : 'white'}
-                                variant="transparent"
-                                style={{ opacity: 0.8 }}
-                              >
-                                <IconX size={10} />
-                              </ActionIcon>
-                            )
-                          }
                         >
                           {getColorAbbreviation(color)}
                         </Badge>
                       ))}
-                      {draftPlayer.deck_colors.length === 0 && (
-                        <Text c="dimmed" size="sm">
-                          No colors
-                        </Text>
-                      )}
                     </Group>
                   </Group>
                 </Table.Td>
