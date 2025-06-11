@@ -202,6 +202,7 @@ export const DraftCreate = ({ onBack, onDraftCreated }: DraftCreateProps): JSX.E
                 label="Draft Name"
                 placeholder="Enter draft name"
                 required
+                maxLength={70}
                 {...form.getInputProps('name')}
                 disabled={isLoading}
               />

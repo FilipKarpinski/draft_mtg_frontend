@@ -90,6 +90,7 @@ export const PlayerCreate = ({ onBack, onPlayerCreated }: PlayerCreateProps): JS
                 label="Player Name"
                 placeholder="Enter player name"
                 required
+                maxLength={40}
                 {...form.getInputProps('name')}
                 disabled={isLoading || success}
               />
