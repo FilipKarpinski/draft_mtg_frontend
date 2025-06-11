@@ -1,5 +1,5 @@
-import { Card, Group, Title, Button, Table, Text, Select, Badge, ActionIcon } from '@mantine/core';
-import { IconUsers, IconX } from '@tabler/icons-react';
+import { Card, Group, Title, Button, Table, Text, Select, Badge } from '@mantine/core';
+import { IconUsers } from '@tabler/icons-react';
 import confetti from 'canvas-confetti';
 import type { DraftDetailData } from '../../types';
 import { DECK_COLOR_OPTIONS, COLOR_MAP } from './constants';
