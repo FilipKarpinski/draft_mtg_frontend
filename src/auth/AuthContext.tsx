@@ -106,6 +106,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       const newToken = response.data.access_token;
       setAccessToken(newToken);
+      authApi.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
       return newToken;
     } catch (error) {
       await logout();
