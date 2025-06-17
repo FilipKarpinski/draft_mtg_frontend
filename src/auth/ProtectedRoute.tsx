@@ -8,10 +8,10 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const location = useLocation();
-  const { isAuthenticated, isLoading } = useContext(AuthContext);
+  const { isAuthenticated, isLoading, isInitializing } = useContext(AuthContext);
 
-  // Show loading state while checking authentication
-  if (isLoading) {
+  // Show loading state while initializing or checking authentication
+  if (isInitializing || isLoading) {
     return <div>Loading...</div>;
   }
 

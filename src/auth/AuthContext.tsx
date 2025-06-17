@@ -7,6 +7,7 @@ interface AuthContextType {
   accessToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isInitializing: boolean;
   error: string | null;
   refreshAccessToken: () => Promise<string>;
   login: (credentials: LoginCredentials) => Promise<boolean>;
@@ -25,6 +26,7 @@ export const AuthContext = createContext<AuthContextType>({
   accessToken: null,
   isAuthenticated: false,
   isLoading: false,
+  isInitializing: true,
   error: null,
   refreshAccessToken: async () => '',
   login: async () => false,
@@ -40,12 +42,33 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isInitializing, setIsInitializing] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   // Use useEffect to update isAuthenticated when accessToken changes
   useEffect(() => {
     setIsAuthenticated(accessToken !== null);
   }, [accessToken]);
+
+  // Initialize authentication on app load
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        // Try to refresh the token to check if user has a valid session
+        const response = await authApi.post<{ access_token: string }>('/refresh', {});
+        const token = response.data.access_token;
+        setAccessToken(token);
+        authApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      } catch (error) {
+        // No valid session, user needs to log in
+        console.log('No valid session found');
+      } finally {
+        setIsInitializing(false);
+      }
+    };
+
+    initializeAuth();
+  }, []);
 
   const login = async (credentials: LoginCredentials) => {
     setIsLoading(true);
@@ -122,6 +145,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         accessToken,
         isAuthenticated,
         isLoading,
+        isInitializing,
         error,
         refreshAccessToken,
         login,
